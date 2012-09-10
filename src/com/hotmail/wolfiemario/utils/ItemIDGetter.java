@@ -1,9 +1,14 @@
-package com.hotmail.wolfiemario;
+package com.hotmail.wolfiemario.utils;
 
 import java.util.HashMap;
 import net.minecraft.server.Block;
 import net.minecraft.server.Item;
 
+/**
+ * This utility class allows item and block IDs to be retrieved using the names specified for them in Minecraft's source code,
+ * and also allows custom names to be associated with IDs.
+ * @author Gerrard Lukacs
+ */
 public class ItemIDGetter
 {
 	private static HashMap<String, Integer> idMap;
@@ -33,11 +38,17 @@ public class ItemIDGetter
 		return id;
 	}
 	
+	/**
+	 * Registers a custom item or block name to the given ID. This can also overwrite a previously registered name.
+	 * @param name - the desired item or block name
+	 * @param id - the id this name is meant to represent
+	 */
 	public static void registerName(String name, int id)
 	{
 		idMap.put(name, id);
 	}
 	
+	//Initializes the map of item/block names and ids
 	static
 	{
 		try
@@ -74,11 +85,12 @@ public class ItemIDGetter
 				}
 			}
 		}
-		catch(Exception e)
+		catch(RuntimeException e)
 		{
 			//This is so we have an idea of what goes wrong if something does go wrong.
 			//The alternative, ExceptionInInitializerError, is not particularly helpful.
 			e.printStackTrace();
+			throw e; //Not that you'd see it, since this is an initializer.
 		}
 		
 	}

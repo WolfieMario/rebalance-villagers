@@ -12,13 +12,17 @@ import net.minecraft.server.Tuple;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import com.hotmail.wolfiemario.ItemIDGetter;
 import com.hotmail.wolfiemario.rebalancevillagers.offers.CustomOffer;
 import com.hotmail.wolfiemario.rebalancevillagers.offers.ItemStackProducer;
 import com.hotmail.wolfiemario.rebalancevillagers.offers.ItemStackProducerFactory;
 import com.hotmail.wolfiemario.rebalancevillagers.offers.PotentialOffersList;
 import com.hotmail.wolfiemario.rebalancevillagers.offers.SimpleOffer;
+import com.hotmail.wolfiemario.utils.ItemIDGetter;
 
+/**
+ * This class loads the config files of the Rebalance Villagers plugin.
+ * @author Gerrard Lukacs
+ */
 public class ConfigLoader
 {
 	private RebalanceVillagers plugin;
@@ -54,6 +58,9 @@ public class ConfigLoader
 	private static final String CONFIG_BUY_VALUES = "buy-values";
 	private static final String CONFIG_SELL_VALUES = "sell-values";
 	
+	/**
+	 * @param handle - the RebalanceVillagers plugin to load the config for.
+	 */
 	public ConfigLoader(RebalanceVillagers handle)
 	{
 		plugin = handle;
@@ -64,6 +71,9 @@ public class ConfigLoader
 	private FileConfiguration getOfferConfig()	{	return plugin.getOfferConfig();	}
 	private Logger getLogger()					{	return plugin.getLogger();		}
 
+	/**
+	 * Applies the settings in config.yml to the plugin.
+	 */
 	void applyConfig()
 	{
 		BalancedVillager.setOfferRemoval(getConfig().getBoolean(CONFIG_REMOVE_OFFERS, true));
@@ -121,6 +131,9 @@ public class ConfigLoader
 		plugin.shopkeeperCheckDelay = validateMinimumOfOne(getConfig().getInt(checkDelay, 50), checkDelay, CONFIG_WARNING_POSTFIX);
 	}
 	
+	/**
+	 * Applies the settings in offers.yml to the plugin.
+	 */
 	void applyOfferConfig()
 	{
 		//Get currency
@@ -213,8 +226,16 @@ public class ConfigLoader
 		BalancedVillager.setSellValues(sellValues);
 		
 	}
-
-	//Convenience method since so many properties cannot be less than one.
+	
+	//Validation and warning generation helper methods
+	
+	/**
+	 * Validates that the specified value is no less than 1. If value is less than 1, a warning is issued.
+	 * @param value - the value to validate
+	 * @param path - the path to the value. Used for the warning message.
+	 * @param postfix - this String is appended to the warning message
+	 * @return value, or 1 if value is less than 1.
+	 */
 	private int validateMinimumOfOne(int value, String path, String postfix)
 	{
 		if(value < 1)
@@ -226,6 +247,16 @@ public class ConfigLoader
 		return value;
 	}
 	
+	/**
+	 * Validates that the specified value is a double value between 0.0 and 1.0, inclusive.
+	 * A warning is issued if these requirements are not met.
+	 * @param path - the path to the value to check
+	 * @param config - the ConfigurationSection containing this path
+	 * @param postfix - this String is appended to the warning message
+	 * @return The value at the given path, if all conditions are met.
+	 * If the value is not a double, or it is less than 0.0, 0.0 is returned.
+	 * If the value is greater than 1.0, 1.0 is returned.
+	 */
 	private double validateProbability(String path, ConfigurationSection config, String postfix)
 	{
 		double probability;
@@ -243,6 +274,14 @@ public class ConfigLoader
 		return probability;
 	}
 
+	/**
+	 * Returns whether or not the value retrieved from a given path is non-null.
+	 * If it is null, a warning is issued.
+	 * @param value - the value to check
+	 * @param path - the path to the value. Used for the warning message.
+	 * @param postfix - this String is appended to the warning message
+	 * @return False if value is null, true otherwise.
+	 */
 	private boolean pathContentsExists(Object value, String path, String postfix)
 	{
 		if(value == null)
@@ -253,6 +292,14 @@ public class ConfigLoader
 		return true;
 	}
 	
+	/**
+	 * Returns whether or not the given path exists in the given ConfigurationSection.
+	 * If it does not, a warning is issued.
+	 * @param path - the path to check
+	 * @param config - the ConfigurationSection containing this path
+	 * @param postfix - this String is appended to the warning message
+	 * @return True if the path exists, false otherwise.
+	 */
 	private boolean pathExists(String path, ConfigurationSection config, String postfix)
 	{
 		if(!config.contains(path))
@@ -263,6 +310,15 @@ public class ConfigLoader
 		return true;
 	}
 	
+	/**
+	 * Returns whether or not the given id is greater than or equal to 0.
+	 * If it is not, a warning is issued, stating that the specified item/block name is unknown.
+	 * @param id - the id to check
+	 * @param name - the name of the item. Used for the warning message.
+	 * @param path - the path to the value. Used for the warning message.
+	 * @param postfix - this String is appended to the warning message
+	 * @return True if id is greater than or equal to 0, false otherwise.
+	 */
 	private boolean idExists(int id, String name, String path, String postfix)
 	{
 		if(id < 0)
@@ -273,6 +329,14 @@ public class ConfigLoader
 		return true;
 	}
 
+	/**
+	 * Returns whether or not the given Integer List could be interpreted as a range.
+	 * Issues a warning if it cannot.
+	 * @param range - the Integer List to check
+	 * @param path - the path to the value. Used for the warning message.
+	 * @param postfix - this String is appended to the warning message
+	 * @return True if range exists and has a size of at least 1, false otherwise.
+	 */
 	private boolean rangeExists(List<Integer> range, String path, String postfix)
 	{
 		if(range == null || range.size() < 1)
@@ -283,7 +347,16 @@ public class ConfigLoader
 		return true;
 	}
 	
-	private boolean offersExist(Object value, String path)
+	/**
+	 * Returns whether or not the given ConfigurationSection (intended to represent offers) exists.
+	 * If a user specifies "nothing" for an offer list, YAML does not treat the path as a
+	 * ConfigurationSection. This method previously issued warnings in such a scenario, but it
+	 * proved annoying.
+	 * @param value - the section to check
+	 * @param path - the path to the value. Previously used for the warning message.
+	 * @return False if value is null, true otherwise.
+	 */
+	private boolean offersExist(ConfigurationSection value, String path)
 	{
 		if(value == null)
 		{
@@ -307,6 +380,11 @@ public class ConfigLoader
 		return path.substring(header.length() + 1);
 	}
 	
+	/**
+	 * Attempts to populate the given SimpleOffer list with the contents of the path, if offers are defined there.
+	 * @param targetList - the list to populate
+	 * @param path - the location of the offers to populate the list with
+	 */
 	private void populateOffersList(ArrayList<SimpleOffer> targetList, String path)
 	{
 		ConfigurationSection configOffers = getOfferConfig().getConfigurationSection(path);
@@ -318,6 +396,12 @@ public class ConfigLoader
 		}
 	}
 	
+	/**
+	 * Populates the given SimpleOffer list with the contents of potentialOffers.
+	 * @param targetList - the list to populate
+	 * @param potentialOffers - keys representing offers to be added to the list
+	 * @param pathHeader - the parent path of the keys
+	 */
 	private void populateSimpleOffers(ArrayList<SimpleOffer> targetList, Set<String> potentialOffers, String pathHeader)
 	{
 		for(String name: potentialOffers)
@@ -335,6 +419,12 @@ public class ConfigLoader
 		}
 	}
 	
+	/**
+	 * Populates the given CustomOffer list with the contents of potentialOffers.
+	 * @param targetList - the list to populate
+	 * @param potentialOffers - keys representing offers to be added to the list
+	 * @param pathHeader - the parent path of the keys
+	 */
 	private void populateCustomOffers(ArrayList<CustomOffer> targetList, Set<String> potentialOffers, String pathHeader)
 	{
 		for(String name: potentialOffers)
@@ -356,6 +446,11 @@ public class ConfigLoader
 		}
 	}
 	
+	/**
+	 * Attempts to load an ItemStackProducer from the given path.
+	 * @param path - the location of the ItemStackProducer
+	 * @return The desired ItemStackProducer, or null if it could not be loaded.
+	 */
 	private ItemStackProducer loadItemStackProducer(String path)
 	{
 		if(!getOfferConfig().contains(path))
@@ -413,6 +508,12 @@ public class ConfigLoader
 		return null;
 	}
 
+	/**
+	 * Populates the given offer values map with the contents of itemNames.
+	 * @param targetMap - the map to populate
+	 * @param itemNames - keys representing offers values to be added to the map
+	 * @param pathHeader - the parent path of the keys
+	 */
 	private void populateValuesHashMap(HashMap<Integer, Tuple> targetMap, Set<String> itemNames, String pathHeader)
 	{
 		for(String name: itemNames)

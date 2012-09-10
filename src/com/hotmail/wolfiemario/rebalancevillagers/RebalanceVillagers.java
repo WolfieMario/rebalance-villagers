@@ -35,6 +35,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
+ * The Rebalance Villagers plugin's main class.
  * @author Gerrard Lukacs
  */
 public class RebalanceVillagers extends JavaPlugin implements Listener
@@ -60,6 +61,9 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 	private static final String PLUGIN_NAME = "Rebalance Villagers";
 	private static final String SHOPKEEPERS_NAME = "Shopkeepers";
 	
+	/**
+	 * Initializes the plugin.
+	 */
 	public RebalanceVillagers()
 	{
 		offerConfig = null;
@@ -121,12 +125,19 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 		getLogger().info(PLUGIN_NAME + " has been disabled.");
 	}
 	
+	/**
+	 * Reloads the plugin.
+	 */
 	public void reload() //TODO
 	{
 		onDisable();
 		onEnable();
 	}
 	
+	/**
+	 * Listens to creatures which are spawned, and kills new EntityVillagers, replacing them with identical BalancedVillagers.
+	 * <br>Avoids killing Shopkeepers.
+	 */
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onCreatureSpawn(CreatureSpawnEvent event)
 	{
@@ -167,6 +178,10 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 		}
 	}
 	
+	/**
+	 * Listens to entity damage, canceling the event if the target is a BalancedVillager and the plugin is
+	 * configured to make them invulnerable.
+	 */
 	@EventHandler
 	public void onEntityDamage(EntityDamageEvent event)
 	{
@@ -174,6 +189,9 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 			event.setCancelled(true);
 	}
 	
+	/**
+	 * Attempts to prepare for interactions with the Shopkeepers plugin, if it is loaded.
+	 */
 	@SuppressWarnings("rawtypes")
 	private void connectWithShopkeepers()
 	{
@@ -196,6 +214,9 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 		}
 	}
 	
+	/**
+	 * Converts all existing (non-Shopkeeper) villagers in all worlds to BalancedVillagers.
+	 */
 	private void convertExistingVillagers()
 	{
 		List<World> worldList = getServer().getWorlds();
@@ -219,6 +240,10 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 		}
 	}
 	
+	/**
+	 * Converts the given villager into a BalancedVillager, leaving an identical villager.
+	 * Because the previous villager is removed, the new villager will have a different unique ID.
+	 */
 	private void convertVillager(EntityVillager vil, net.minecraft.server.World mcWorld)
 	{
 		Location location = vil.getBukkitEntity().getLocation();
@@ -230,7 +255,12 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 		mcWorld.addEntity(balancedVil, SpawnReason.CUSTOM);
 	}
 	
-	//An attempt to wait for a newly spawned Villager to be added to activeShopkeepers, so we can tell whether it was indeed a Shopkeeper.
+	/**
+	 * An attempt to wait for a newly spawned Villager to be added to activeShopkeepers, so we can tell whether it was indeed a Shopkeeper.
+	 * Having learned about the Bukkit scheduler from nisovin, I intend to change this mechanic, as multithreading leads to a potential
+	 * ConcurrentModificationException.
+	 * @author Gerrard Lukacs
+	 */
 	private class ShopkeeperWaiter implements Runnable
 	{
 		private EntityVillager villager;
@@ -262,13 +292,17 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 			}
 			catch (InterruptedException e)
 			{
-				getLogger().info("Thread interruption: No clue how you just managed that.");
+				getLogger().info("Thread interruption: No clue how you just managed that."); //Seriously, assuming no reflection, that shouldn't be possible.
 				e.printStackTrace();
 			}
 		}
 	}
 	
 	//Methods for offers' custom config file
+	/**
+	 * Reloads the offers.yml config.
+	 * @see org.bukkit.plugin.java.JavaPlugin.reloadConfig()
+	 */
 	public void reloadOfferConfig()
 	{
 		if (offerConfigFile == null)
@@ -285,6 +319,10 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 		}
 	}
 	
+	/**
+	 * Gets the offers.yml config.
+	 * @see org.bukkit.plugin.java.JavaPlugin.getConfig()
+	 */
 	public FileConfiguration getOfferConfig()
 	{
 		if (offerConfig == null)
@@ -294,6 +332,10 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 		return offerConfig;
 	}
 	
+	/**
+	 * Saves the offers.yml config.
+	 * @see org.bukkit.plugin.java.JavaPlugin.saveConfig()
+	 */
 	public void saveOfferConfig()
 	{
 		if (offerConfig == null || offerConfigFile == null)
@@ -309,11 +351,19 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 		}
 	}
 	
+	/**
+	 * Saves the default offers.yml config.
+	 * @see org.bukkit.plugin.java.JavaPlugin.saveDefaultConfig()
+	 */
 	public void saveDefaultOfferConfig()
 	{
 		saveResource(OFFER_CONFIG_FILENAME, false);
 	}
 	
+	/**
+	 * Saves two sample config files: offers-default.yml (a copy of offers.yml) and offers-vanilla.yml.
+	 * @see org.bukkit.plugin.java.JavaPlugin.saveDefaultConfig()
+	 */
 	public void saveSampleOfferConfigs()
 	{
 		File defaultConfig = new File(getDataFolder(), OFFER_DEFAULT_CONFIG_FILENAME);
@@ -325,7 +375,13 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 		saveResource(OFFER_VANILLA_CONFIG_FILENAME, false);
 	}
 	
-	//Mostly copied from saveResource, but without exception throwing as this isn't in an API. Modified for custom destination of resource.
+	/**
+	 * Saves a resource to a custom destination name.
+	 * <br>Mostly copied from saveResource, but without exception throwing as this isn't in an API.
+	 * @param resourceName - The name of the resource to save a copy of (not a path!)
+	 * @param destName - The destination name to which the resource is saved (again, not a path!)
+	 * @see org.bukkit.plugin.java.JavaPlugin.saveResource(String arg0, boolean arg1)
+	 */
 	public void saveResourceCopy(String resourceName, String destName)
 	{
 		InputStream in = getResource(resourceName);

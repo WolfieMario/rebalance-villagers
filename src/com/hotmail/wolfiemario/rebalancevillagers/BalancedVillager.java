@@ -29,7 +29,9 @@ import net.minecraft.server.Village;
 import net.minecraft.server.World;
 
 /**
+ * A custom extension of the EntityVillager class, for custom properties and offer generation.
  * @author Gerrard Lukacs
+ * @author Mojang staff (likely Jeb): a lot of this class is copied from EntityVillager.
  */
 public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 {
@@ -78,26 +80,38 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 	private int bz;
 	private MerchantRecipe bA;
 	
+	/**
+	 * @param world - the World for this BalancedVillager
+	 */
 	public BalancedVillager(World world)
 	{
 		this(world, 0);
 	}
 	
-	public BalancedVillager(World world, int k)
+	/**
+	 * @param world - the World for this BalancedVillager
+	 * @param p - this BalancedVillager's profession
+	 */
+	public BalancedVillager(World world, int p)
 	{
-		super(world, k);
+		super(world, p);
 		
 		profession = 0;
 		f = false;
 		g = false;
 		village = null;
-		setProfession(k);
+		setProfession(p);
 		texture = "/mob/villager/villager.png";
 		bw = 0.5F;
 		getNavigation().b(true);
 		getNavigation().a(true);
 	}
 	
+	/**
+	 * Constructs a new BalacedVillager which is identical to the (NMS) EntityVillager vil.
+	 * Of course, the unique ID will not be the same, and the position still needs to be set.
+	 * @param vil - the (NMS) EntityVillager to clone as a BalancedVillager
+	 */
 	public BalancedVillager(EntityVillager vil)
 	{
 		super(vil.world, vil.getProfession());
@@ -107,6 +121,10 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 		a(dummyCompound); //Retrieves that data in this object.
 	}
 	
+	/*
+	 * The following setters change properties for all BalancedVillagers.
+	 * These are invoked when loading the config.
+	 */
 	public static void setOfferRemoval(boolean remove)		{	offerRemoval = remove;		}
 	public static void setOfferRemovalRange(int min, int max)
 	{
@@ -141,13 +159,17 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 		sellValues = sells;
 	}
 	
-	//isAIEnabled(): use new AI
+	/**
+	 * (NMS) EntityVillager method: isAIEnabled(): use new AI
+	 */
 	public boolean aV()
 	{
 		return true;
 	}
-
-	//updateAITick()
+	
+	/**
+	 * (NMS) EntityVillager method: updateAITick()
+	 */
 	protected void bd()
 	{
 		//standard behavior
@@ -174,7 +196,7 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 			{
 				if(by) //were we adding a new offer?
 				{
-					c(newOfferCount); //Add new offer(s)
+					generateNewOffers(newOfferCount); //Add new offer(s)
 					by = false;
 				}
 				if(bA != null)
@@ -187,8 +209,10 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 		}
 		super.bd();
 	}
-
-	//interact: Attempt to trade
+	
+	/**
+	 * (NMS) EntityVillager method: interact: Attempt to trade with entityhuman
+	 */
 	public boolean c(EntityHuman entityhuman)
 	{
 		if(isAlive() && (!q() || allowMultivending) && (!isBaby() || canTradeChildren)) //alive, adult, and nobody else is trading
@@ -204,20 +228,26 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 			return super.c(entityhuman);
 		}
 	}
-
-	//entityInit()
+	
+	/**
+	 * (NMS) EntityVillager method: entityInit()
+	 */
 	protected void a()
 	{
 		super.a();
 	}
-
-	//Gets max health
+	
+	/**
+	 * @return Max health of a BalancedVillager.
+	 */
 	public int getMaxHealth()
 	{
 		return maxHealth;
 	}
-
-	//Store NBT Data
+	
+	/**
+	 * (NMS) EntityVillager method: stores this villager's NBT data.
+	 */
 	public void b(NBTTagCompound nbttagcompound)
 	{
 		super.b(nbttagcompound);
@@ -226,8 +256,10 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 		if(i != null)
 			nbttagcompound.setCompound("Offers", i.a());
 	}
-
-	//Load NBT Data
+	
+	/**
+	 * (NMS) EntityVillager method: loads this villager's NBT data.
+	 */
 	public void a(NBTTagCompound nbttagcompound)
 	{
 		super.a(nbttagcompound);
@@ -239,92 +271,118 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 			i = new MerchantRecipeList(nbttagcompound1);
 		}
 	}
-
-	//canDespawn()
+	
+	/**
+	 * (NMS) EntityVillager method: canDespawn()
+	 */
 	protected boolean ba()
 	{
 		return false;
 	}
-
-	//idle sound
+	
+	/**
+	 * (NMS) EntityVillager method: idle sound string
+	 */
 	protected String aQ()
 	{
 		return "mob.villager.default";
 	}
-
-	//hurt sound
+	
+	/**
+	 * (NMS) EntityVillager method: hurt sound string
+	 */
 	protected String aR()
 	{
 		return "mob.villager.defaulthurt";
 	}
-
-	//death sound
+	
+	/**
+	 * (NMS) EntityVillager method: death sound string
+	 */
 	protected String aS()
 	{
 		return "mob.villager.defaultdeath";
 	}
-
+	
 	public void setProfession(int k)
 	{
 		datawatcher.watch(16, Integer.valueOf(k));
 	}
-
+	
 	public int getProfession()
 	{
 		return datawatcher.getInt(16);
 	}
-
-	//isMating
+	
+	/**
+	 * (NMS) EntityVillager method: isMating()
+	 */
 	public boolean o()
 	{
 		return f;
 	}
-
-	//set isMating
+	
+	/**
+	 * (NMS) EntityVillager method: set IsMating()
+	 */
 	public void e(boolean flag)
 	{
 		f = flag;
 	}
-
-	//set isPlaying
+	
+	/**
+	 * (NMS) EntityVillager method: set IsPlaying()
+	 */
 	public void f(boolean flag)
 	{
 		g = flag;
 	}
-
-	//isPlaying
+	
+	/**
+	 * (NMS) EntityVillager method: isPlaying()
+	 */
 	public boolean p()
 	{
 		return g;
 	}
-
-	//setRevengeTarget
+	
+	/**
+	 * (NMS) EntityVillager method: setRevengeTarget()
+	 */
 	public void c(EntityLiving entityliving)
 	{
 		super.c(entityliving);
 		if(village != null && entityliving != null)
 			village.a(entityliving); //enemy of the state
 	}
-
-	//Binds a player to this Villager
+	
+	/**
+	 * (NMS) EntityVillager method: Binds a player to this Villager
+	 */
 	public void a_(EntityHuman entityhuman)
 	{
 		h = entityhuman;
 	}
-
-	//Returns the player bound to this Villager
+	
+	/**
+	 * (NMS) EntityVillager method: Returns the player bound to this Villager
+	 */
 	public EntityHuman l_()
 	{
 		return h;
 	}
-
-	//Is a player bound to this Villager?
+	
+	/**
+	 * (NMS) EntityVillager method: Is a player bound to this Villager?
+	 */
 	public boolean q()
 	{
 		return h != null;
 	}
-
-	//Offer addition and removal, and riches count, called when a trade is made.
+	
+	/**
+	 * (NMS) EntityVillager method: Offer addition and removal, and riches count, called when a trade is made.
+	 */
 	public void a(MerchantRecipe merchantrecipe)
 	{
 		merchantrecipe.f(); //increments offer uses
@@ -352,18 +410,23 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 		if(merchantrecipe.getBuyItem1().id == currencyId)
 			bz += merchantrecipe.getBuyItem1().count; //increment riches by amount of currency item.
 	}
-
-	//Gives offers, generating one if none exist.
+	
+	/**
+	 * (NMS) EntityVillager method: Gives offers, generating one if none exist.
+	 */
 	public MerchantRecipeList getOffers(EntityHuman entityhuman)
 	{
 		if(i == null)
-			c(defaultOfferCount);
+			generateNewOffers(defaultOfferCount);
 		return i;
 	}
 	
-	//Generate new offers
+	/**
+	 * Attempts to generate the specified number of offers. Limited by the amount of unique offers this villager can actually generate.
+	 * @param numOffers - the number of offers to try generating
+	 */
 	@SuppressWarnings("unchecked")
-	private void c(int k)
+	private void generateNewOffers(int numOffers)
 	{
 		MerchantRecipeList merchantrecipelist = new MerchantRecipeList();
 		
@@ -381,16 +444,17 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 		Collections.shuffle(merchantrecipelist);
 		if(i == null)
 			i = new MerchantRecipeList();
-		for(int l = 0; l < k && l < merchantrecipelist.size(); l++)
+		for(int l = 0; l < numOffers && l < merchantrecipelist.size(); l++)
 			i.a((MerchantRecipe)merchantrecipelist.get(l));
 		
 	}
 	
-	private static boolean offerOccurs(AbstractOffer offer, Random random)
-	{
-		return random.nextFloat() < offer.getProbability();
-	}
-	
+	/**
+	 * Populates a MerchantRecipeList with offers from a PotentialOffersList, based on their probability values.
+	 * @param merchantrecipelist - the list to populate
+	 * @param offers - the potential offers to populate it with
+	 * @param random - I never really understood the reasons for this model of passing Random...
+	 */
 	@SuppressWarnings("unchecked")
 	private static void populateMerchantRecipeList(MerchantRecipeList merchantrecipelist, PotentialOffersList offers, Random random)
 	{
@@ -413,7 +477,24 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 		}
 	}
 	
-	//Creates the MerchantRecipe of a SimpleOffer
+	/**
+	 * Determines whether or not the specified AbstractOffer is considered for addition to a villager.
+	 * @param offer - the AbstractOffer to check the probability value of
+	 * @param random
+	 * @return Whether or not this offer should occur.
+	 */
+	private static boolean offerOccurs(AbstractOffer offer, Random random)
+	{
+		return random.nextFloat() < offer.getProbability();
+	}
+	
+	/**
+	 * Creates the MerchantRecipe for a block or item ID, based on the specified map of offer values. Applies the Smart Stacking feature.
+	 * @param id - the item or block ID involved in this offer
+	 * @param valuesMap - the map defining the price for the offer
+	 * @param random
+	 * @return The MerchantRecipe built based on the parameters.
+	 */
 	private static MerchantRecipe getOffer(int id, HashMap<Integer, Tuple> valuesMap, Random random)
 	{
 		int value = offerValue(id, valuesMap, random);
@@ -452,8 +533,6 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 			}
 			else
 			{
-				//=IF(P77<= 128; IF(O77=P77;O77;O77 & "-" & P77) & IF(AND(H77<1; L77>1;P77>1);" per Emerald"; IF(P77=1;" Emerald";" Emeralds"));
-				//ROUNDDOWN(ROUND(O77)/9) & " Emerald Blocks & " & MOD(ROUND(O77);9) & "-" & MOD(ROUND(O77);9)+P77-O77 & " Emeralds" )
 				int numCompressed = (int) Math.floor(value/9.0);
 				numCompressed = Math.min(numCompressed, 64); //If we cap the blocks at 64, we guarantee amounts up to 640 are tradeable with this mechanic.
 				int numUncompressed = value - (numCompressed * 9);
@@ -470,7 +549,14 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 			return new MerchantRecipe(buyA, buyB, sell);
 	}
 	
-	//Determines the value of an offer, correcting for incorrect declarations.
+	/**
+	 * Determines the value of an item or block, correcting for incorrect declarations.
+	 * @param id - the item or block ID involved in this offer
+	 * @param valuesMap - the map defining the price for the offer
+	 * @param random
+	 * @return 1 if the value could not be found, a positive number if the value represents the amount in the input slots of a MerchantRecipe,
+	 * or a negative number if the value represents the negation of the amount in the output slot of a MerchantRecipe. 
+	 */
 	private static int offerValue(int id, HashMap<Integer, Tuple> valuesMap, Random random)
 	{
 		Tuple tuple = (Tuple)valuesMap.get(Integer.valueOf(id));
@@ -482,12 +568,18 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 			return ((Integer)tuple.a()).intValue() + random.nextInt(((Integer)tuple.b()).intValue() - ((Integer)tuple.a()).intValue());
 	}
 	
+	/**
+	 * @param id - the id of the item or block to check
+	 * @return Whether or not the Smart Compression feature can compress this item or block.
+	 */
 	private static boolean isCompressible(int id)
 	{
 		return compressedForms.containsKey(id);
 	}
 	
-	//Adds a buy offer to the given list.
+	/**
+	 * (NMS) EntityVillager method: Adds a buy offer to the given list.
+	 */
 	@SuppressWarnings({ "unchecked", "unused" })
 	@Deprecated
 	private static void a(MerchantRecipeList merchantrecipelist, int id, Random random, float probabilityValue)
@@ -496,14 +588,18 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 			merchantrecipelist.add(new MerchantRecipe(a(id, random), Item.EMERALD));
 	}
 	
-	//Creates a buy offer's ItemStack
+	/**
+	 * (NMS) EntityVillager method: Creates a buy offer's ItemStack
+	 */
 	@Deprecated
 	private static ItemStack a(int id, Random random)
 	{
 		return new ItemStack(id, b(id, random), 0);
 	}
 	
-	//Determines the value of a buy offer, correcting for incorrect declarations.
+	/**
+	 * (NMS) EntityVillager method: Determines the value of a buy offer, correcting for incorrect declarations.
+	 */
 	@Deprecated
 	private static int b(int id, Random random)
 	{
@@ -516,7 +612,9 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 			return ((Integer)tuple.a()).intValue() + random.nextInt(((Integer)tuple.b()).intValue() - ((Integer)tuple.a()).intValue());
 	}
 	
-	//Adds a sell offer to the given list.
+	/**
+	 * (NMS) EntityVillager method: Adds a sell offer to the given list.
+	 */
 	@SuppressWarnings({ "unchecked", "unused" })
 	@Deprecated
 	private static void b(MerchantRecipeList merchantrecipelist, int id, Random random, float probabilityValue)
@@ -564,7 +662,9 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 		}
 	}
 	
-	//Determines the value of a sale offer, correcting for incorrect declarations.
+	/**
+	 * (NMS) EntityVillager method: Determines the value of a sale offer, correcting for incorrect declarations.
+	 */
 	@Deprecated
 	private static int c(int id, Random random)
 	{
@@ -576,5 +676,5 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 		else
 			return ((Integer)tuple.a()).intValue() + random.nextInt(((Integer)tuple.b()).intValue() - ((Integer)tuple.a()).intValue());
 	}
-
+	
 }
