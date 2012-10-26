@@ -99,7 +99,6 @@ public class ItemStackProducerFactory
 			damage = dmg;
 		}
 		
-		@Override
 		public ItemStack getItemStack()
 		{
 			if(maximum > minimum)
@@ -142,7 +141,6 @@ public class ItemStackProducerFactory
 			stack = s;
 		}
 		
-		@Override
 		public ItemStack getItemStack()
 		{
 			return stack;
