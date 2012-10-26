@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 
 import net.minecraft.server.EntityVillager;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -167,8 +168,7 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 				//Check if this is a Shopkeeper
 				if(activeShopkeepers != null && event.getSpawnReason().equals(SpawnReason.CUSTOM))
 				{		
-					Thread shopkeeperWaiter = new Thread(new ShopkeeperWaiter(entityVil, mcWorld));
-					shopkeeperWaiter.start();
+					Bukkit.getScheduler().scheduleAsyncDelayedTask(this, new ShopkeeperWaiter(entityVil, mcWorld, this));
 					return;
 				}
 					
@@ -244,7 +244,7 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 	 * Converts the given villager into a BalancedVillager, leaving an identical villager.
 	 * Because the previous villager is removed, the new villager will have a different unique ID.
 	 */
-	private void convertVillager(EntityVillager vil, net.minecraft.server.World mcWorld)
+	private void convertVillager( EntityVillager vil, net.minecraft.server.World mcWorld)
 	{
 		Location location = vil.getBukkitEntity().getLocation();
 		
@@ -265,11 +265,13 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 	{
 		private EntityVillager villager;
 		private net.minecraft.server.World mcWorld;
+		private RebalanceVillagers plugin;
 		
-		private ShopkeeperWaiter(EntityVillager vil, net.minecraft.server.World world)
+		private ShopkeeperWaiter(EntityVillager vil, net.minecraft.server.World world, RebalanceVillagers _plugin)
 		{
 			villager = vil;
 			mcWorld = world;
+			plugin = _plugin;
 		}
 		
 		public void run()
@@ -288,7 +290,12 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 				}
 				
 				//getLogger().info("I think this isn't a Shopkeeper.");
-				convertVillager(villager, mcWorld);
+				Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+					public void run() {
+						convertVillager(villager, mcWorld);
+					}
+				});
+				
 			}
 			catch (InterruptedException e)
 			{
