@@ -5,12 +5,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,8 +32,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import com.nisovin.shopkeepers.ShopkeepersPlugin;
 
 /**
  * The Rebalance Villagers plugin's main class.
@@ -53,9 +54,8 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 	public static final Integer[] DEFAULT_ALLOWED_PROFESSIONS = {0,1,2,3,4};
 	public Integer[] allowedProfessions;
 	
-	private Plugin shopkeepersPlugin; //A handle of Shopkeepers, for compatibility.
-	@SuppressWarnings("rawtypes")
-	private Map activeShopkeepers; //A Shopkeepers field into which active shopkeepers are placed upon spawning.
+	private ShopkeepersPlugin shopkeepersPlugin; //A handle of Shopkeepers, for compatibility.
+
 	int shopkeeperCheckAttempts; //Number of times to check if a CUSTOM-spawned villager has been registered as a shopkeeper.
 	int shopkeeperCheckDelay; //The time in milliseconds before checking whether a Shopkeeper is registered.
 	
@@ -166,13 +166,15 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 			if((mcEntity instanceof BalancedVillager) == false)
 			{				
 				//Check if this is a Shopkeeper
-				if(activeShopkeepers != null && event.getSpawnReason().equals(SpawnReason.CUSTOM))
-				{		
+				if(shopkeepersPlugin != null /* && event.getSpawnReason().equals(SpawnReason.CUSTOM) */)
+				{
 					Bukkit.getScheduler().scheduleAsyncDelayedTask(this, new ShopkeeperWaiter(entityVil, mcWorld, this));
-					return;
+				}
+				else
+				{
+					convertVillager(entityVil, mcWorld);
 				}
 					
-				convertVillager(entityVil, mcWorld);
 			}
 			
 		}
@@ -192,25 +194,12 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 	/**
 	 * Attempts to prepare for interactions with the Shopkeepers plugin, if it is loaded.
 	 */
-	@SuppressWarnings("rawtypes")
 	private void connectWithShopkeepers()
 	{
-		shopkeepersPlugin = getServer().getPluginManager().getPlugin(SHOPKEEPERS_NAME);
+		shopkeepersPlugin = (ShopkeepersPlugin) getServer().getPluginManager().getPlugin(SHOPKEEPERS_NAME);
 		if (shopkeepersPlugin != null)
 		{
-			getLogger().info(SHOPKEEPERS_NAME + " has been detected.");
-			
-			try
-			{
-				Field activeShopkeepersField = shopkeepersPlugin.getClass().getDeclaredField("activeShopkeepers");
-				activeShopkeepersField.setAccessible(true);
-				activeShopkeepers = (Map)activeShopkeepersField.get(shopkeepersPlugin);
-				getLogger().info("Successfully connected to Shopkeepers; custom shopkeepers will not be altered by this plugin.");
-			}
-			catch(Exception e)
-			{
-				getLogger().info("Could not properly connect with Shopkeepers - Incorrect version?");
-			}
+			getLogger().info("Successfully connected to " + SHOPKEEPERS_NAME + " - custom shopkeepers will not be altered by this plugin.");
 		}
 	}
 	
@@ -230,7 +219,7 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 			for(Villager vil: villagerList)
 			{
 				//Detect Shopkeepers even on startup!
-				if(activeShopkeepers == null || !activeShopkeepers.containsKey(vil.getEntityId()))
+				if(shopkeepersPlugin == null || !shopkeepersPlugin.isShopkeeper(vil))
 				{
 					EntityVillager entityVil = (EntityVillager)((CraftEntity)vil).getHandle();
 				
@@ -282,7 +271,14 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 				{
 					Thread.sleep(shopkeeperCheckDelay);
 					
-					if(activeShopkeepers.containsKey(villager.getBukkitEntity().getEntityId()))
+					// check if that's a shopkeeper - but do that on main thread to be sure (using the scheduler)
+					boolean isShopkeeper = Bukkit.getScheduler().callSyncMethod(plugin, new Callable<Boolean>() {
+						public Boolean call() throws Exception {
+							return new Boolean(shopkeepersPlugin.isShopkeeper(villager.getBukkitEntity()));
+						}
+					}).get().booleanValue();
+					
+					if(isShopkeeper)
 					{
 						//getLogger().info("Shopkeeper found.");
 						return;
@@ -300,6 +296,12 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 			catch (InterruptedException e)
 			{
 				getLogger().info("Thread interruption: No clue how you just managed that."); //Seriously, assuming no reflection, that shouldn't be possible.
+				e.printStackTrace();
+				
+			}
+			catch (ExecutionException e)
+			{
+				getLogger().info("Bukkit Scheduler Execution interupted. Dunno if that's a problem.");
 				e.printStackTrace();
 			}
 		}
