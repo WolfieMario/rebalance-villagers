@@ -2,6 +2,7 @@ package com.hotmail.wolfiemario.rebalancevillagers;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Random;
 
 import com.hotmail.wolfiemario.rebalancevillagers.offers.AbstractOffer;
@@ -11,10 +12,13 @@ import com.hotmail.wolfiemario.rebalancevillagers.offers.SimpleOffer;
 
 import net.minecraft.server.Block;
 import net.minecraft.server.ChunkCoordinates;
+import net.minecraft.server.DamageSource;
+import net.minecraft.server.Entity;
 import net.minecraft.server.EntityHuman;
 import net.minecraft.server.EntityLiving;
 import net.minecraft.server.EntityVillager;
 import net.minecraft.server.IMerchant;
+import net.minecraft.server.IMonster;
 import net.minecraft.server.Item;
 import net.minecraft.server.ItemStack;
 import net.minecraft.server.MathHelper;
@@ -33,52 +37,9 @@ import net.minecraft.server.World;
  * @author Gerrard Lukacs
  * @author Mojang staff (likely Jeb): a lot of this class is copied from EntityVillager.
  */
-public class BalancedVillager extends EntityVillager implements NPC, IMerchant
+public class BalancedVillager extends EntityVillager
+	implements NPC, IMerchant
 {
-	private static int currencyId = Item.EMERALD.id;
-	private static HashMap<Integer, PotentialOffersList> offersByProfession = new HashMap<Integer, PotentialOffersList>();
-	private static HashMap<Integer, Tuple> buyValues = new HashMap<Integer, Tuple>();
-	private static HashMap<Integer, Tuple> sellValues = new HashMap<Integer, Tuple>();
-	private static HashMap<Integer, Integer> compressedForms;
-	static
-	{
-		compressedForms = new HashMap<Integer, Integer>();
-		compressedForms.put(Item.EMERALD.id, Block.EMERALD_BLOCK.id);
-		compressedForms.put(Item.GOLD_INGOT.id, Block.GOLD_BLOCK.id);
-		compressedForms.put(Item.GOLD_NUGGET.id, Item.GOLD_INGOT.id);
-		compressedForms.put(Item.DIAMOND.id, Block.DIAMOND_BLOCK.id);
-		compressedForms.put(Item.IRON_INGOT.id, Block.IRON_BLOCK.id);
-		//Sadly, can't include lapis because it would be considered equal to all dyes.
-	}
-	
-	private static boolean offerRemoval = true;
-	private static int removalMinimum = 3;
-	private static int removalMaximum = 13;
-	private static int removalTicks = 20;
-	
-	private static int defaultOfferCount = 1;
-	private static int newOfferCount = 1;
-	private static int generationTicks = 60;
-	private static boolean newForAnyTrade = false;
-	private static int newProbability = 100;
-	
-	
-	private static int particleTicks = 200;
-	private static boolean allowMultivending = false;
-	private static boolean canTradeChildren = false;
-	
-	private static int maxHealth = 20;
-	
-	private int profession;
-	private boolean f;
-	private boolean g;
-	Village village;
-	private EntityHuman h;
-	private MerchantRecipeList i;
-	private int j;
-	private boolean by;
-	private int bz;
-	private MerchantRecipe bA;
 	
 	/**
 	 * @param world - the World for this BalancedVillager
@@ -92,77 +53,40 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 	 * @param world - the World for this BalancedVillager
 	 * @param p - this BalancedVillager's profession
 	 */
-	public BalancedVillager(World world, int p)
+	public BalancedVillager(World world, int k)
 	{
-		super(world, p);
+		super(world, k);
 		
 		profession = 0;
 		f = false;
 		g = false;
 		village = null;
-		setProfession(p);
+		setProfession(k);
 		texture = "/mob/villager/villager.png";
-		bw = 0.5F;
+		bG = 0.5F;
 		getNavigation().b(true);
 		getNavigation().a(true);
-	}
-	
-	/**
-	 * Constructs a new BalacedVillager which is identical to the (NMS) EntityVillager vil.
-	 * Of course, the unique ID will not be the same, and the position still needs to be set.
-	 * @param vil - the (NMS) EntityVillager to clone as a BalancedVillager
-	 */
-	public BalancedVillager(EntityVillager vil)
-	{
-		super(vil.world, vil.getProfession());
-		
-		NBTTagCompound dummyCompound = new NBTTagCompound();
-		vil.b(dummyCompound); //Stores the villager data in the compound
-		a(dummyCompound); //Retrieves that data in this object.
-	}
-	
-	/*
-	 * The following setters change properties for all BalancedVillagers.
-	 * These are invoked when loading the config.
-	 */
-	public static void setOfferRemoval(boolean remove)		{	offerRemoval = remove;		}
-	public static void setOfferRemovalRange(int min, int max)
-	{
-		removalMinimum = min;
-		removalMaximum = max;
-	}
-	public static void setRemovalTicks(int ticks)			{	removalTicks = ticks;		}
-
-	public static void setDefaultOfferCount(int count)		{	defaultOfferCount = count;	}
-	public static void setNewOfferCount(int count)			{	newOfferCount = count;		}
-	public static void setGenerationTicks(int ticks)		{	generationTicks = ticks;	}
-	public static void setForAnyTrade(boolean allow)		{	newForAnyTrade = allow;		}
-	public static void setNewProbability(int prob)			{	newProbability = prob;		}
-
-	public static void setParticleTicks(int ticks)			{	particleTicks = ticks;		}
-	public static void setAllowMultivending(boolean allow)	{	allowMultivending = allow;	}
-	public static void setCanTradeChildren(boolean allow)	{	canTradeChildren = allow;	}
-	
-	public static void setMaxHealth(int health)				{	maxHealth = health;			}
-	
-	public static void setCurrencyItem(int id)				{	currencyId = id; 			}
-	public static void setOffersByProfession(HashMap<Integer, PotentialOffersList> offers)
-	{
-		offersByProfession = offers;
-	}
-	public static void setBuyValues(HashMap<Integer, Tuple> buys)
-	{
-		buyValues = buys;
-	}
-	public static void setSellValues(HashMap<Integer, Tuple> sells)
-	{
-		sellValues = sells;
+//        goalSelector.a(0, new PathfinderGoalFloat(this));
+//        goalSelector.a(1, new PathfinderGoalAvoidPlayer(this, net/minecraft/server/EntityZombie, 8F, 0.3F, 0.35F));
+//        goalSelector.a(1, new PathfinderGoalTradeWithPlayer(this));
+//        goalSelector.a(1, new PathfinderGoalLookAtTradingPlayer(this));
+//        goalSelector.a(2, new PathfinderGoalMoveIndoors(this));
+//        goalSelector.a(3, new PathfinderGoalRestrictOpenDoor(this));
+//        goalSelector.a(4, new PathfinderGoalOpenDoor(this, true));
+//        goalSelector.a(5, new PathfinderGoalMoveTowardsRestriction(this, 0.3F));
+//        goalSelector.a(6, new PathfinderGoalMakeLove(this));
+//        goalSelector.a(7, new PathfinderGoalTakeFlower(this));
+//        goalSelector.a(8, new PathfinderGoalPlay(this, 0.32F));
+//        goalSelector.a(9, new PathfinderGoalInteract(this, net/minecraft/server/EntityHuman, 3F, 1.0F));
+//        goalSelector.a(9, new PathfinderGoalInteract(this, net/minecraft/server/EntityVillager, 5F, 0.02F));
+//        goalSelector.a(9, new PathfinderGoalRandomStroll(this, 0.3F));
+//        goalSelector.a(10, new PathfinderGoalLookAtPlayer(this, net/minecraft/server/EntityLiving, 8F));
 	}
 	
 	/**
 	 * (NMS) EntityVillager method: isAIEnabled(): use new AI
 	 */
-	public boolean aV()
+	public boolean be()
 	{
 		return true;
 	}
@@ -170,62 +94,88 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 	/**
 	 * (NMS) EntityVillager method: updateAITick()
 	 */
-	protected void bd()
+	protected void bm()
 	{
-		//standard behavior
-		if(--profession <= 0)
+		if(--profession <= 0)     //standard behavior
 		{
 			world.villages.a(MathHelper.floor(locX), MathHelper.floor(locY), MathHelper.floor(locZ));
 			profession = 70 + random.nextInt(50);
 			village = world.villages.getClosestVillage(MathHelper.floor(locX), MathHelper.floor(locY), MathHelper.floor(locZ), 32);
 			if(village == null)
 			{
-				aE(); //detatchHome
+				aL(); //detatchHome
 			} else
 			{
 				ChunkCoordinates chunkcoordinates = village.getCenter();
-				b(chunkcoordinates.x, chunkcoordinates.y, chunkcoordinates.z, village.getSize());
+				b(chunkcoordinates.x, chunkcoordinates.y, chunkcoordinates.z, (int)((float)village.getSize() * 0.6F));
+                if(bL)
+                {
+                    bL = false;
+                    village.b(5);
+                }
 			}
 		}
-		
-		//trading related behavior
-		if(!q() && j > 0) //player is not bound to villager, and j>0 (is n when trade is made)
+		if(!p() && j > 0) // trading related behavior - p == isTrading, j == timeUntilReset
 		{
 			j--;
-			if(j <= 0) //ooh, those ticks are up!
+			if(j <= 0) // timeUntilReset
 			{
-				if(by) //were we adding a new offer?
+				if(bI) // bI == needsInitilization - were we adding a new offer?
 				{
-					generateNewOffers(newOfferCount); //Add new offer(s)
-					by = false;
+                    if(i.size() > 1 && offerRemoval)
+                    {
+                        Iterator<?> iterator = i.iterator();
+                        do
+                        {
+                            if(!iterator.hasNext())
+                                break;
+                            MerchantRecipe merchantrecipe = (MerchantRecipe)iterator.next();
+                            if(merchantrecipe.g()) {
+                                int firstDice = (removalMaximum - removalMinimum)/2 + 1;
+                                int secondDice = removalMaximum - removalMinimum - firstDice + 2;
+                                
+                                //Insurance if either value came out invalid.
+                                firstDice = (firstDice < 1) ? 1 : firstDice;
+                                secondDice = (secondDice < 1) ? 1 : secondDice;
+		          
+                                merchantrecipe.a( random.nextInt(firstDice) + random.nextInt(secondDice) + removalMinimum);
+                            }
+                            
+                        } while(true);
+                        j = removalTicks;
+                    }
+                    if(village != null && bK != null)
+                    {
+                        world.broadcastEntityEffect(this, (byte)14);
+                        village.a(bK, 1);
+                    }
+                    generateNewOffers(newOfferCount); //Add new offer(s)
+                    bI = false;
 				}
-				if(bA != null)
-				{
-					i.remove(bA);
-					bA = null;
-				}
-				addEffect(new MobEffect(MobEffectList.REGENERATION.id, particleTicks, 0));
+				addEffect(new MobEffect(MobEffectList.REGENERATION.id, particleTicks, 0));  // addEffect(new MobEffect(MobEffectList.REGENERATION.id, 200, 0));
 			}
 		}
-		super.bd();
+		super.bm();
 	}
 	
 	/**
 	 * (NMS) EntityVillager method: interact: Attempt to trade with entityhuman
 	 */
-	public boolean c(EntityHuman entityhuman)
+	public boolean a(EntityHuman entityhuman)
 	{
-		if(isAlive() && (!q() || allowMultivending) && (!isBaby() || canTradeChildren)) //alive, adult, and nobody else is trading
+        ItemStack itemstack = entityhuman.inventory.getItemInHand();
+        boolean flag = itemstack != null && itemstack.id == Item.MONSTER_EGG.id;
+		if(!flag && isAlive() && (!p() || allowMultivending) && (!isBaby() || canTradeChildren)) //alive, adult, and nobody else is trading
 		{
 			if(!world.isStatic)
 			{
-				a_(entityhuman);
+				b_(entityhuman);
 				entityhuman.openTrade(this);
 			}
 			return true;
 		} else
 		{
-			return super.c(entityhuman);
+			return super.a(entityhuman);
 		}
 	}
 	
@@ -252,7 +202,7 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 	{
 		super.b(nbttagcompound);
 		nbttagcompound.setInt("Profession", getProfession());
-		nbttagcompound.setInt("Riches", bz);
+		nbttagcompound.setInt("Riches", bJ);
 		if(i != null)
 			nbttagcompound.setCompound("Offers", i.a());
 	}
@@ -264,7 +214,7 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 	{
 		super.a(nbttagcompound);
 		setProfession(nbttagcompound.getInt("Profession"));
-		bz = nbttagcompound.getInt("Riches");
+		bJ = nbttagcompound.getInt("Riches");
 		if(nbttagcompound.hasKey("Offers"))
 		{
 			NBTTagCompound nbttagcompound1 = nbttagcompound.getCompound("Offers");
@@ -275,7 +225,7 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 	/**
 	 * (NMS) EntityVillager method: canDespawn()
 	 */
-	protected boolean ba()
+	protected boolean bj()
 	{
 		return false;
 	}
@@ -283,7 +233,7 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 	/**
 	 * (NMS) EntityVillager method: idle sound string
 	 */
-	protected String aQ()
+	protected String aY()
 	{
 		return "mob.villager.default";
 	}
@@ -291,7 +241,7 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 	/**
 	 * (NMS) EntityVillager method: hurt sound string
 	 */
-	protected String aR()
+	protected String aZ()
 	{
 		return "mob.villager.defaulthurt";
 	}
@@ -299,7 +249,7 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 	/**
 	 * (NMS) EntityVillager method: death sound string
 	 */
-	protected String aS()
+	protected String ba()
 	{
 		return "mob.villager.defaultdeath";
 	}
@@ -317,7 +267,7 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 	/**
 	 * (NMS) EntityVillager method: isMating()
 	 */
-	public boolean o()
+	public boolean n()
 	{
 		return f;
 	}
@@ -325,7 +275,7 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 	/**
 	 * (NMS) EntityVillager method: set IsMating()
 	 */
-	public void e(boolean flag)
+	public void f(boolean flag)
 	{
 		f = flag;
 	}
@@ -333,7 +283,7 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 	/**
 	 * (NMS) EntityVillager method: set IsPlaying()
 	 */
-	public void f(boolean flag)
+	public void g(boolean flag)
 	{
 		g = flag;
 	}
@@ -341,7 +291,7 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 	/**
 	 * (NMS) EntityVillager method: isPlaying()
 	 */
-	public boolean p()
+	public boolean o()
 	{
 		return g;
 	}
@@ -353,13 +303,47 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 	{
 		super.c(entityliving);
 		if(village != null && entityliving != null)
+		{
 			village.a(entityliving); //enemy of the state
+            if(entityliving instanceof EntityHuman)
+            {
+                byte byte0 = -1;
+                if(isBaby())
+                    byte0 = -3;
+                village.a(((EntityHuman)entityliving).getName(), byte0);
+                if(isAlive())
+                    world.broadcastEntityEffect(this, (byte)13);
+            }
+        }
+    }
+
+    public void die(DamageSource damagesource)
+    {
+        if(village != null)
+        {
+            Entity entity = damagesource.getEntity();
+            if(entity != null)
+            {
+                if(entity instanceof EntityHuman)
+                    village.a(((EntityHuman)entity).getName(), -2);
+                else
+                if(entity instanceof IMonster)
+                    village.h();
+            } else
+            if(entity == null)
+            {
+                EntityHuman entityhuman = world.findNearbyPlayer(this, 16D);
+                if(entityhuman != null)
+                    village.h();
+            }
+        }
+        super.die(damagesource);
 	}
 	
 	/**
 	 * (NMS) EntityVillager method: Binds a player to this Villager
 	 */
-	public void a_(EntityHuman entityhuman)
+	public void b_(EntityHuman entityhuman)
 	{
 		h = entityhuman;
 	}
@@ -367,7 +351,7 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 	/**
 	 * (NMS) EntityVillager method: Returns the player bound to this Villager
 	 */
-	public EntityHuman l_()
+	public EntityHuman m_()
 	{
 		return h;
 	}
@@ -375,7 +359,7 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 	/**
 	 * (NMS) EntityVillager method: Is a player bound to this Villager?
 	 */
-	public boolean q()
+	public boolean p()
 	{
 		return h != null;
 	}
@@ -389,26 +373,14 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 		if( (merchantrecipe.a( (MerchantRecipe)i.get(i.size() - 1) ) || newForAnyTrade) && (random.nextInt(100) < newProbability) ) //Does this offer equal the last offer on the list?
 		{
 			j = generationTicks; //set offer update ticks to n
-			by = true;
-		}
-		else if(i.size() > 1 && offerRemoval)
-		{
-			int firstDice = (removalMaximum - removalMinimum)/2 + 1;
-			int secondDice = removalMaximum - removalMinimum - firstDice + 2;
-			
-			//Insurance if either value came out invalid.
-			firstDice = (firstDice < 1) ? 1 : firstDice;
-			secondDice = (secondDice < 1) ? 1 : secondDice;
-			
-			int k = random.nextInt(firstDice) + random.nextInt(secondDice) + removalMinimum;
-			if(k <= merchantrecipe.getUses())
-			{
-				j = removalTicks;
-				bA = merchantrecipe;
-			}
+			bI = true;
+            if(h != null)
+                bK = h.getName();
+            else
+                bK = null;
 		}
 		if(merchantrecipe.getBuyItem1().id == currencyId)
-			bz += merchantrecipe.getBuyItem1().count; //increment riches by amount of currency item.
+			bJ += merchantrecipe.getBuyItem1().count; //increment riches by amount of currency item.
 	}
 	
 	/**
@@ -417,16 +389,25 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 	public MerchantRecipeList getOffers(EntityHuman entityhuman)
 	{
 		if(i == null)
-			generateNewOffers(defaultOfferCount);
+			generateNewOffers(defaultOfferCount);    // t
 		return i;
 	}
+	
+//    private float j(float f1)
+//    {
+//        float f2 = f1 + bM;
+//        if(f2 > 0.9F)
+//            return 0.9F - (f2 - 0.9F);
+//        else
+//            return f2;
+//    }
 	
 	/**
 	 * Attempts to generate the specified number of offers. Limited by the amount of unique offers this villager can actually generate.
 	 * @param numOffers - the number of offers to try generating
 	 */
 	@SuppressWarnings("unchecked")
-	private void generateNewOffers(int numOffers)
+	private void generateNewOffers(int numOffers)  // t()
 	{
 		MerchantRecipeList merchantrecipelist = new MerchantRecipeList();
 		
@@ -440,41 +421,12 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 		
 		if(merchantrecipelist.isEmpty())
 			merchantrecipelist.add(getOffer(Item.GOLD_INGOT.id, buyValues, random)); //If all else fails...
-		
 		Collections.shuffle(merchantrecipelist);
 		if(i == null)
 			i = new MerchantRecipeList();
 		for(int l = 0; l < numOffers && l < merchantrecipelist.size(); l++)
 			i.a((MerchantRecipe)merchantrecipelist.get(l));
 		
-	}
-	
-	/**
-	 * Populates a MerchantRecipeList with offers from a PotentialOffersList, based on their probability values.
-	 * @param merchantrecipelist - the list to populate
-	 * @param offers - the potential offers to populate it with
-	 * @param random - I never really understood the reasons for this model of passing Random...
-	 */
-	@SuppressWarnings("unchecked")
-	private static void populateMerchantRecipeList(MerchantRecipeList merchantrecipelist, PotentialOffersList offers, Random random)
-	{
-		for(SimpleOffer buy: offers.getBuys())
-		{
-			if(offerOccurs(buy, random))
-				merchantrecipelist.add(getOffer(buy.getId(), buyValues, random));
-		}
-		
-		for(SimpleOffer sell: offers.getSells())
-		{
-			if(offerOccurs(sell, random))
-				merchantrecipelist.add(getOffer(sell.getId(), sellValues, random));
-		}
-		
-		for(CustomOffer other: offers.getOther())
-		{
-			if(offerOccurs(other, random))
-				merchantrecipelist.add(other.getOffer());
-		}
 	}
 	
 	/**
@@ -677,4 +629,142 @@ public class BalancedVillager extends EntityVillager implements NPC, IMerchant
 			return ((Integer)tuple.a()).intValue() + random.nextInt(((Integer)tuple.b()).intValue() - ((Integer)tuple.a()).intValue());
 	}
 	
+	
+    private int profession;
+    private boolean f;
+    private boolean g;
+    Village village;
+    private EntityHuman h;
+    private MerchantRecipeList i;
+    private int j;
+    private boolean bI;
+    private int bJ;
+    private String bK;
+    private boolean bL;
+//    private float bM;
+    private static HashMap<Integer, Tuple> buyValues = new HashMap<Integer, Tuple>(); // bN 
+    private static HashMap<Integer, Tuple> sellValues = new HashMap<Integer, Tuple>(); // bO
+    
+    
+    // ADD START
+    /**
+     * Constructs a new BalacedVillager which is identical to the (NMS) EntityVillager vil.
+     * Of course, the unique ID will not be the same, and the position still needs to be set.
+     * @param vil - the (NMS) EntityVillager to clone as a BalancedVillager
+     */
+    public BalancedVillager(EntityVillager vil)
+    {
+        super(vil.world, vil.getProfession());
+        
+        NBTTagCompound dummyCompound = new NBTTagCompound();
+        vil.b(dummyCompound); //Stores the villager data in the compound
+        a(dummyCompound); //Retrieves that data in this object.
+    }
+    
+    private static HashMap<Integer, Integer> compressedForms;  // private static final Map 
+    
+    private static int currencyId = Item.EMERALD.id;
+    private static HashMap<Integer, PotentialOffersList> offersByProfession = new HashMap<Integer, PotentialOffersList>();
+
+    
+    private static boolean offerRemoval = true;
+    private static int removalMinimum = 2;
+    private static int removalMaximum = 13;
+    private static int removalTicks = 20;
+    
+    private static int defaultOfferCount = 1;
+    private static int newOfferCount = 1;
+    private static int generationTicks = 40;
+    private static boolean newForAnyTrade = false;
+    private static int newProbability = 100;
+    
+    
+    private static int particleTicks = 200;
+    private static boolean allowMultivending = false;
+    private static boolean canTradeChildren = false;
+    
+    private static int maxHealth = 20;
+    
+    static
+    {        
+        // MOD START
+        // removed original put's
+        //Sadly, can't include lapis because it would be considered equal to all dyes.
+        compressedForms = new HashMap<Integer, Integer>();
+        compressedForms.put(Item.EMERALD.id, Block.EMERALD_BLOCK.id);
+        compressedForms.put(Item.GOLD_INGOT.id, Block.GOLD_BLOCK.id);
+        compressedForms.put(Item.GOLD_NUGGET.id, Item.GOLD_INGOT.id);
+        compressedForms.put(Item.DIAMOND.id, Block.DIAMOND_BLOCK.id);
+        compressedForms.put(Item.IRON_INGOT.id, Block.IRON_BLOCK.id);
+        // MOD END
+    }
+    
+    
+    /*
+     * The following setters change properties for all BalancedVillagers.
+     * These are invoked when loading the config.
+     */
+    public static void setOfferRemoval(boolean remove)      {   offerRemoval = remove;      }
+    public static void setOfferRemovalRange(int min, int max)
+    {
+        removalMinimum = min;
+        removalMaximum = max;
+    }
+    public static void setRemovalTicks(int ticks)           {   removalTicks = ticks;       }
+
+    public static void setDefaultOfferCount(int count)      {   defaultOfferCount = count;  }
+    public static void setNewOfferCount(int count)          {   newOfferCount = count;      }
+    public static void setGenerationTicks(int ticks)        {   generationTicks = ticks;    }
+    public static void setForAnyTrade(boolean allow)        {   newForAnyTrade = allow;     }
+    public static void setNewProbability(int prob)          {   newProbability = prob;      }
+
+    public static void setParticleTicks(int ticks)          {   particleTicks = ticks;      }
+    public static void setAllowMultivending(boolean allow)  {   allowMultivending = allow;  }
+    public static void setCanTradeChildren(boolean allow)   {   canTradeChildren = allow;   }
+    
+    public static void setMaxHealth(int health)             {   maxHealth = health;         }
+    
+    public static void setCurrencyItem(int id)              {   currencyId = id;            }
+    public static void setOffersByProfession(HashMap<Integer, PotentialOffersList> offers)
+    {
+        offersByProfession = offers;
+    }
+    public static void setBuyValues(HashMap<Integer, Tuple> buys)
+    {
+        buyValues = buys;
+    }
+    public static void setSellValues(HashMap<Integer, Tuple> sells)
+    {
+        sellValues = sells;
+    }
+    
+    /**
+     * Populates a MerchantRecipeList with offers from a PotentialOffersList, based on their probability values.
+     * @param merchantrecipelist - the list to populate
+     * @param offers - the potential offers to populate it with
+     * @param random - I never really understood the reasons for this model of passing Random...
+     */
+    @SuppressWarnings("unchecked")
+    private static void populateMerchantRecipeList(MerchantRecipeList merchantrecipelist, PotentialOffersList offers, Random random)
+    {
+        for(SimpleOffer buy: offers.getBuys())
+        {
+            if(offerOccurs(buy, random))
+                merchantrecipelist.add(getOffer(buy.getId(), buyValues, random));
+        }
+        
+        for(SimpleOffer sell: offers.getSells())
+        {
+            if(offerOccurs(sell, random))
+                merchantrecipelist.add(getOffer(sell.getId(), sellValues, random));
+        }
+        
+        for(CustomOffer other: offers.getOther())
+        {
+            if(offerOccurs(other, random))
+                merchantrecipelist.add(other.getOffer());
+        }
+    }
+    
+    // ADD END
 }
