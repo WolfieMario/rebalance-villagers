@@ -86,9 +86,6 @@ public class ConfigLoader
 		if(removalMinimum > removalMaximum)
 			getLogger().info("Warning: '" + removalMin + "' is greater than '" + removalMax + "'! " + CONFIG_WARNING_POSTFIX);
 		
-		String removalTicks = CONFIG_OFFER_REMOVAL + ".removal-ticks";
-		BalancedVillager.setRemovalTicks(validateMinimumOfOne(getConfig().getInt(removalTicks, 20), removalTicks, CONFIG_WARNING_POSTFIX));
-		
 		String defaultOfferCount = CONFIG_OFFER_GENERATION + ".default-offer-count";
 		BalancedVillager.setDefaultOfferCount(validateMinimumOfOne(getConfig().getInt(defaultOfferCount, 1), defaultOfferCount, CONFIG_WARNING_POSTFIX));
 		String newOfferCount = CONFIG_OFFER_GENERATION + ".new-offer-count";
@@ -102,6 +99,8 @@ public class ConfigLoader
 		
 		String particleTicks = CONFIG_GENERAL_TRADING + ".particle-ticks";
 		BalancedVillager.setParticleTicks(validateMinimumOfOne(getConfig().getInt(particleTicks, 200), particleTicks, CONFIG_WARNING_POSTFIX));
+		String checkDryDrun = CONFIG_GENERAL_TRADING + ".dryrun-check-ticks";
+        BalancedVillager.setCheckDryDrun(getConfig().getInt(checkDryDrun, 200));
 		String allowMulti = CONFIG_GENERAL_TRADING + ".allow-bickering";
 		BalancedVillager.setAllowMultivending(getConfig().getBoolean(allowMulti, false));
 		String allowChild = CONFIG_GENERAL_TRADING + ".can-trade-children";

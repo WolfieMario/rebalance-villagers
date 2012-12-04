@@ -1,5 +1,6 @@
 package com.hotmail.wolfiemario.rebalancevillagers;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -41,7 +42,7 @@ public class BalancedVillager extends EntityVillager
 	implements NPC, IMerchant
 {
 	
-	/**
+    /**
 	 * @param world - the World for this BalancedVillager
 	 */
 	public BalancedVillager(World world)
@@ -94,7 +95,8 @@ public class BalancedVillager extends EntityVillager
 	/**
 	 * (NMS) EntityVillager method: updateAITick()
 	 */
-	protected void bm()
+	@SuppressWarnings("unchecked")
+    protected void bm()
 	{
 		if(--profession <= 0)     //standard behavior
 		{
@@ -115,6 +117,7 @@ public class BalancedVillager extends EntityVillager
                 }
 			}
 		}
+		
 		if(!p() && j > 0) // trading related behavior - p == isTrading, j == timeUntilReset
 		{
 			j--;
@@ -122,43 +125,72 @@ public class BalancedVillager extends EntityVillager
 			{
 				if(bI) // bI == needsInitilization - were we adding a new offer?
 				{
-                    if(i.size() > 1 && offerRemoval)
-                    {
-                        Iterator<?> iterator = i.iterator();
-                        do
-                        {
-                            if(!iterator.hasNext())
-                                break;
-                            MerchantRecipe merchantrecipe = (MerchantRecipe)iterator.next();
-                            if(merchantrecipe.g()) {
-                                int firstDice = (removalMaximum - removalMinimum)/2 + 1;
-                                int secondDice = removalMaximum - removalMinimum - firstDice + 2;
-                                
-                                //Insurance if either value came out invalid.
-                                firstDice = (firstDice < 1) ? 1 : firstDice;
-                                secondDice = (secondDice < 1) ? 1 : secondDice;
-		          
-                                merchantrecipe.a( random.nextInt(firstDice) + random.nextInt(secondDice) + removalMinimum);
-                            }
-                            
-                        } while(true);
-                        j = removalTicks;
-                    }
                     if(village != null && bK != null)
                     {
                         world.broadcastEntityEffect(this, (byte)14);
                         village.a(bK, 1);
                     }
                     generateNewOffers(newOfferCount); //Add new offer(s)
+                    
+                    if(i.size() > 1)
+                    {
+                        ArrayList<MerchantRecipe> toRemove = null;
+                        Iterator<?> iterator = i.iterator();
+                        do
+                        {
+                            if(!iterator.hasNext()) break;
+                            MerchantRecipe merchantrecipe = (MerchantRecipe)iterator.next();
+                            if(merchantrecipe.g())  // if uses exceeded maxUses 
+                            {
+                                if (offerRemoval)
+                                {
+                                    if (toRemove == null) toRemove = new ArrayList<MerchantRecipe>();
+                                    toRemove.add(merchantrecipe);
+                                }
+                                else
+                                {
+                                    // reset maxUses so item is usable again
+                                    merchantrecipe.a(random.nextInt(6) + random.nextInt(6) + 2);
+                                }
+                            }
+                        } while(true);
+                        
+                        if (toRemove != null) {
+                            System.out.println("Should remove: " + toRemove + " from: " + i.toArray());
+                            
+                            // if we would remove all of our recipes, reactivate at least the first one!
+                            if (toRemove.size() >= i.size()) {
+                                boolean firstOne = true;
+                                for (MerchantRecipe merchantrecipe : toRemove) {
+                                    if (firstOne) {
+                                        System.out.println("Reactivate first one...");
+                                        merchantrecipe.a(random.nextInt(6) + random.nextInt(6) + 2);
+                                        firstOne = false;
+                                    } else {
+                                        i.remove(merchantrecipe);
+                                    }
+                                }
+                            } else {
+                                i.removeAll(toRemove);
+                            }
+                        }
+
+                    }
+                    
                     bI = false;
 				}
 				addEffect(new MobEffect(MobEffectList.REGENERATION.id, particleTicks, 0));  // addEffect(new MobEffect(MobEffectList.REGENERATION.id, 200, 0));
 			}
 		}
+		
+        // if we still have no active offer, activate at least one offer so we don't run dry...
+		checkForInactiveOffersOnly(false);
+
 		super.bm();
 	}
 	
-	/**
+	
+    /**
 	 * (NMS) EntityVillager method: interact: Attempt to trade with entityhuman
 	 */
 	public boolean a(EntityHuman entityhuman)
@@ -388,8 +420,9 @@ public class BalancedVillager extends EntityVillager
 	 */
 	public MerchantRecipeList getOffers(EntityHuman entityhuman)
 	{
-		if(i == null)
-			generateNewOffers(defaultOfferCount);    // t
+		if(i == null) {
+            generateNewOffers(defaultOfferCount);    // t
+		}
 		return i;
 	}
 	
@@ -406,30 +439,29 @@ public class BalancedVillager extends EntityVillager
 	 * Attempts to generate the specified number of offers. Limited by the amount of unique offers this villager can actually generate.
 	 * @param numOffers - the number of offers to try generating
 	 */
-	@SuppressWarnings("unchecked")
 	private void generateNewOffers(int numOffers)  // t()
 	{
 		MerchantRecipeList merchantrecipelist = new MerchantRecipeList();
 		
 		PotentialOffersList offers = offersByProfession.get(getProfession());
 		
-		if(offers != null)
-			populateMerchantRecipeList(merchantrecipelist, offers, random);
-		
-		if(merchantrecipelist.isEmpty() && offersByProfession.containsKey(-1))
-			populateMerchantRecipeList(merchantrecipelist, offersByProfession.get(-1), random); //Attempt loading user-specified defaults.
-		
-		if(merchantrecipelist.isEmpty())
-			merchantrecipelist.add(getOffer(Item.GOLD_INGOT.id, buyValues, random)); //If all else fails...
+		if(offers != null) populateMerchantRecipeList(merchantrecipelist, offers, random);
+
+        findAndRemoveAlreadyActiveRecipes(merchantrecipelist); // remove items which are already in the list (fixes villager running dry)
+
 		Collections.shuffle(merchantrecipelist);
-		if(i == null)
-			i = new MerchantRecipeList();
+		
+		if(i == null) {
+		    i = new MerchantRecipeList();
+		    if (merchantrecipelist.isEmpty()) addDefaultRecipes();
+		} else dryrunCheck = dryrunCheckTicks;
+		
 		for(int l = 0; l < numOffers && l < merchantrecipelist.size(); l++)
 			i.a((MerchantRecipe)merchantrecipelist.get(l));
 		
 	}
 	
-	/**
+    /**
 	 * Determines whether or not the specified AbstractOffer is considered for addition to a villager.
 	 * @param offer - the AbstractOffer to check the probability value of
 	 * @param random
@@ -447,13 +479,27 @@ public class BalancedVillager extends EntityVillager
 	 * @param random
 	 * @return The MerchantRecipe built based on the parameters.
 	 */
-	private static MerchantRecipe getOffer(int id, HashMap<Integer, Tuple> valuesMap, Random random)
+	private static MerchantRecipe getOffer(int id, HashMap<Integer, Tuple> valuesMap, Random random) {
+       return getOffer(id, valuesMap, random, 0);
+	}
+
+	private static MerchantRecipe getOffer(int id, HashMap<Integer, Tuple> valuesMap, Random random, int maxUses)
 	{
+	    if (maxUses <= 0) {
+            int firstDice = (removalMaximum - removalMinimum)/2 + 1;
+            int secondDice = removalMaximum - removalMinimum - firstDice + 2;
+            
+            //Insurance if either value came out invalid.
+            firstDice = (firstDice < 1) ? 1 : firstDice;
+            secondDice = (secondDice < 1) ? 1 : secondDice;
+
+            maxUses = random.nextInt(firstDice) + random.nextInt(secondDice) + removalMinimum;
+	    }
+	    
 		int value = offerValue(id, valuesMap, random);
 		
 		//Don't allow zero of an item!
-		if(value == 0)
-			value = 1;
+		if(value == 0) value = 1;
 		
 		boolean buy = valuesMap == buyValues;
 		
@@ -495,10 +541,14 @@ public class BalancedVillager extends EntityVillager
 			
 		}
 		
-		if(buyB == null)
-			return new MerchantRecipe(buyA, sell);
-		else
-			return new MerchantRecipe(buyA, buyB, sell);
+        NBTTagCompound nbttagcompound = new NBTTagCompound();
+        nbttagcompound.setCompound("buy", buyA.save(new NBTTagCompound("buy")));
+        nbttagcompound.setCompound("sell", sell.save(new NBTTagCompound("sell")));
+        if(buyB != null) nbttagcompound.setCompound("buyB", buyB.save(new NBTTagCompound("buyB")));
+        nbttagcompound.setInt("uses", 0);
+        nbttagcompound.setInt("maxUses", maxUses);
+		
+        return new MerchantRecipe(nbttagcompound);
 	}
 	
 	/**
@@ -670,7 +720,6 @@ public class BalancedVillager extends EntityVillager
     private static boolean offerRemoval = true;
     private static int removalMinimum = 2;
     private static int removalMaximum = 13;
-    private static int removalTicks = 20;
     
     private static int defaultOfferCount = 1;
     private static int newOfferCount = 1;
@@ -678,7 +727,9 @@ public class BalancedVillager extends EntityVillager
     private static boolean newForAnyTrade = false;
     private static int newProbability = 100;
     
-    
+    private static int dryrunCheckTicks = 200;
+    private int dryrunCheck = -1;
+
     private static int particleTicks = 200;
     private static boolean allowMultivending = false;
     private static boolean canTradeChildren = false;
@@ -710,7 +761,9 @@ public class BalancedVillager extends EntityVillager
         removalMinimum = min;
         removalMaximum = max;
     }
-    public static void setRemovalTicks(int ticks)           {   removalTicks = ticks;       }
+    
+
+    public static void setCheckDryDrun(int count)           {   dryrunCheckTicks = count;  }
 
     public static void setDefaultOfferCount(int count)      {   defaultOfferCount = count;  }
     public static void setNewOfferCount(int count)          {   newOfferCount = count;      }
@@ -764,6 +817,93 @@ public class BalancedVillager extends EntityVillager
             if(offerOccurs(other, random))
                 merchantrecipelist.add(other.getOffer());
         }
+    }
+    
+    private boolean itemStackEqual(ItemStack a, ItemStack b) {
+        if (a != null) {
+            if (b == null) return false;
+            
+            if (!a.doMaterialsMatch(b)) return false;
+            if (a.count != b.count) return false;
+            
+        } else if (b != null) return false;
+        
+        return true;
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void findAndRemoveAlreadyActiveRecipes(MerchantRecipeList merchantrecipelist) {
+        if (i == null || i.size() == 0) return;
+        
+        ArrayList<MerchantRecipe> doubles = null;
+        Iterator<MerchantRecipe> merchantrecipelistIterator = merchantrecipelist.iterator();
+        while (merchantrecipelistIterator.hasNext()) {
+            MerchantRecipe recipeToAdd = merchantrecipelistIterator.next();
+
+            Iterator<MerchantRecipe> iIterator = i.iterator();
+            while (iIterator.hasNext()) {
+                MerchantRecipe activeReceipe = iIterator.next();
+                
+                boolean check1 = itemStackEqual(recipeToAdd.getBuyItem1(),activeReceipe.getBuyItem1());
+                boolean check2 = itemStackEqual(recipeToAdd.getBuyItem2(),activeReceipe.getBuyItem2());
+                boolean check3 = itemStackEqual(recipeToAdd.getBuyItem3(),activeReceipe.getBuyItem3());
+
+                if (check1 && check2 && check3) {
+                    if (doubles == null) doubles = new ArrayList<MerchantRecipe>();
+                    doubles.add(recipeToAdd);
+                    break;
+                }
+            }
+            
+        }
+        if (doubles != null) merchantrecipelist.removeAll(doubles);
+    }
+    
+    private void checkForInactiveOffersOnly(boolean force) {
+        if (i == null) return;
+        
+        if (!force) {
+            if (dryrunCheck < 0) return;
+            else if(dryrunCheck > 0) dryrunCheck--;
+            if(dryrunCheck > 0) return;
+        }
+        dryrunCheck = -1;
+        
+        // check for inactive recipes only
+        if(i.size() > 1)
+        {
+            MerchantRecipe first = null;
+            boolean foundActive = false;
+            Iterator<?> iterator = i.iterator();
+            do
+            {
+                if(!iterator.hasNext()) break;
+                MerchantRecipe merchantrecipe = (MerchantRecipe)iterator.next();
+                if(merchantrecipe.g())  // if uses exceeded maxUses 
+                {
+                    if (first == null) first = merchantrecipe;
+                } else {
+                    foundActive = true;
+                    break;
+                }
+            } while(true);
+            
+            if (!foundActive) {
+                first.a(random.nextInt(6) + random.nextInt(6) + 2);
+            }
+            
+        // we don't have any recipes, create more
+        } else {
+            generateNewOffers(1);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void addDefaultRecipes() {
+        MerchantRecipeList merchantrecipelist = new MerchantRecipeList();
+        if(offersByProfession.containsKey(-1)) populateMerchantRecipeList(merchantrecipelist, offersByProfession.get(-1), random); //Attempt loading user-specified defaults.
+        if(merchantrecipelist.isEmpty()) merchantrecipelist.add(getOffer(Item.GOLD_INGOT.id, buyValues, random)); //If all else fails...
+        for(int l = 0; l < merchantrecipelist.size(); l++) i.a((MerchantRecipe)merchantrecipelist.get(l));
     }
     
     // ADD END
