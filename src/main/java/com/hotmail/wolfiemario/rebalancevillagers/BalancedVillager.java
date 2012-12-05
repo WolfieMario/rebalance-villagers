@@ -479,22 +479,16 @@ public class BalancedVillager extends EntityVillager
      * @param random
      * @return The MerchantRecipe built based on the parameters.
      */
-    private static MerchantRecipe getOffer(int id, HashMap<Integer, Tuple> valuesMap, Random random) {
-       return getOffer(id, valuesMap, random, 0);
-    }
-
-    private static MerchantRecipe getOffer(int id, HashMap<Integer, Tuple> valuesMap, Random random, int maxUses)
+    private static MerchantRecipe getOffer(int id, HashMap<Integer, Tuple> valuesMap, Random random)
     {
-        if (maxUses <= 0) {
-            int firstDice = (removalMaximum - removalMinimum)/2 + 1;
-            int secondDice = removalMaximum - removalMinimum - firstDice + 2;
-            
-            //Insurance if either value came out invalid.
-            firstDice = (firstDice < 1) ? 1 : firstDice;
-            secondDice = (secondDice < 1) ? 1 : secondDice;
+        int firstDice = (removalMaximum - removalMinimum)/2 + 1;
+        int secondDice = removalMaximum - removalMinimum - firstDice + 2;
+        
+        //Insurance if either value came out invalid.
+        firstDice = (firstDice < 1) ? 1 : firstDice;
+        secondDice = (secondDice < 1) ? 1 : secondDice;
 
-            maxUses = random.nextInt(firstDice) + random.nextInt(secondDice) + removalMinimum;
-        }
+        int maxUses = random.nextInt(firstDice) + random.nextInt(secondDice) + removalMinimum;
         
         int value = offerValue(id, valuesMap, random);
         
@@ -578,107 +572,6 @@ public class BalancedVillager extends EntityVillager
     {
         return compressedForms.containsKey(id);
     }
-    
-    /**
-     * (NMS) EntityVillager method: Adds a buy offer to the given list.
-     */
-    @SuppressWarnings({ "unchecked", "unused" })
-    @Deprecated
-    private static void a(MerchantRecipeList merchantrecipelist, int id, Random random, float probabilityValue)
-    {
-        if(random.nextFloat() < probabilityValue)
-            merchantrecipelist.add(new MerchantRecipe(a(id, random), Item.EMERALD));
-    }
-    
-    /**
-     * (NMS) EntityVillager method: Creates a buy offer's ItemStack
-     */
-    @Deprecated
-    private static ItemStack a(int id, Random random)
-    {
-        return new ItemStack(id, b(id, random), 0);
-    }
-    
-    /**
-     * (NMS) EntityVillager method: Determines the value of a buy offer, correcting for incorrect declarations.
-     */
-    @Deprecated
-    private static int b(int id, Random random)
-    {
-        Tuple tuple = (Tuple)buyValues.get(Integer.valueOf(id));
-        if(tuple == null)
-            return 1;
-        if(((Integer)tuple.a()).intValue() >= ((Integer)tuple.b()).intValue())
-            return ((Integer)tuple.a()).intValue();
-        else
-            return ((Integer)tuple.a()).intValue() + random.nextInt(((Integer)tuple.b()).intValue() - ((Integer)tuple.a()).intValue());
-    }
-    
-    /**
-     * (NMS) EntityVillager method: Adds a sell offer to the given list.
-     */
-    @SuppressWarnings({ "unchecked", "unused" })
-    @Deprecated
-    private static void b(MerchantRecipeList merchantrecipelist, int id, Random random, float probabilityValue)
-    {
-        if(random.nextFloat() < probabilityValue)
-        {
-            int value = c(id, random);
-            ItemStack buyA;
-            ItemStack buyB = null;
-            ItemStack sell;
-            if(value < 0)
-            {
-                buyA = new ItemStack(Item.EMERALD.id, 1, 0);
-                sell = new ItemStack(id, -value, 0);
-            }
-            else
-            {
-                if(value <= 64)
-                {
-                    buyA = new ItemStack(Item.EMERALD.id, value, 0);
-                    sell = new ItemStack(id, 1, 0);
-                }
-                else if(value <= 128)
-                {
-                    buyA = new ItemStack(Item.EMERALD.id, 64, 0);
-                    buyB = new ItemStack(Item.EMERALD.id, value - 64, 0);
-                    sell = new ItemStack(id, 1, 0);
-                }
-                else
-                {
-                    //=IF(P77<= 128; IF(O77=P77;O77;O77 & "-" & P77) & IF(AND(H77<1; L77>1;P77>1);" per Emerald"; IF(P77=1;" Emerald";" Emeralds"));
-                    //ROUNDDOWN(ROUND(O77)/9) & " Emerald Blocks & " & MOD(ROUND(O77);9) & "-" & MOD(ROUND(O77);9)+P77-O77 & " Emeralds" )
-                    int blocks = (int) Math.floor(value/9.0);
-                    int emeralds = value - (blocks * 9);
-                    buyA = new ItemStack(Block.EMERALD_BLOCK.id, blocks, 0);
-                    buyB = new ItemStack(Item.EMERALD.id, emeralds, 0);
-                    sell = new ItemStack(id, 1, 0);
-                }
-                
-            }
-            if(buyB == null)
-                merchantrecipelist.add(new MerchantRecipe(buyA, sell));
-            else
-                merchantrecipelist.add(new MerchantRecipe(buyA, buyB, sell));
-        }
-    }
-    
-    /**
-     * (NMS) EntityVillager method: Determines the value of a sale offer, correcting for incorrect declarations.
-     */
-    @Deprecated
-    private static int c(int id, Random random)
-    {
-        Tuple tuple = (Tuple)sellValues.get(Integer.valueOf(id));
-        if(tuple == null)
-            return 1;
-        if(((Integer)tuple.a()).intValue() >= ((Integer)tuple.b()).intValue())
-            return ((Integer)tuple.a()).intValue();
-        else
-            return ((Integer)tuple.a()).intValue() + random.nextInt(((Integer)tuple.b()).intValue() - ((Integer)tuple.a()).intValue());
-    }
-    
     
     private int profession;
     private boolean f;
