@@ -150,7 +150,7 @@ public class BalancedVillager extends EntityVillager
                                 else
                                 {
                                     // reset maxUses so item is usable again
-                                    merchantrecipe.a(random.nextInt(6) + random.nextInt(6) + 2);
+                                    merchantrecipe.a(maxUses(random));
                                 }
                             }
                         } while(true);
@@ -164,7 +164,7 @@ public class BalancedVillager extends EntityVillager
                                 for (MerchantRecipe merchantrecipe : toRemove) {
                                     if (firstOne) {
                                         System.out.println("Reactivate first one...");
-                                        merchantrecipe.a(random.nextInt(6) + random.nextInt(6) + 2);
+                                        merchantrecipe.a(maxUses(random));
                                         firstOne = false;
                                     } else {
                                         i.remove(merchantrecipe);
@@ -481,14 +481,7 @@ public class BalancedVillager extends EntityVillager
      */
     private static MerchantRecipe getOffer(int id, HashMap<Integer, Tuple> valuesMap, Random random)
     {
-        int firstDice = (removalMaximum - removalMinimum)/2 + 1;
-        int secondDice = removalMaximum - removalMinimum - firstDice + 2;
-        
-        //Insurance if either value came out invalid.
-        firstDice = (firstDice < 1) ? 1 : firstDice;
-        secondDice = (secondDice < 1) ? 1 : secondDice;
 
-        int maxUses = random.nextInt(firstDice) + random.nextInt(secondDice) + removalMinimum;
         
         int value = offerValue(id, valuesMap, random);
         
@@ -540,7 +533,7 @@ public class BalancedVillager extends EntityVillager
         nbttagcompound.setCompound("sell", sell.save(new NBTTagCompound("sell")));
         if(buyB != null) nbttagcompound.setCompound("buyB", buyB.save(new NBTTagCompound("buyB")));
         nbttagcompound.setInt("uses", 0);
-        nbttagcompound.setInt("maxUses", maxUses);
+        nbttagcompound.setInt("maxUses", maxUses(random));
         
         return new MerchantRecipe(nbttagcompound);
     }
@@ -789,6 +782,17 @@ public class BalancedVillager extends EntityVillager
         } else {
             generateNewOffers(1);
         }
+    }
+    
+    private static int maxUses(Random random) {
+        int firstDice = (removalMaximum - removalMinimum)/2 + 1;
+        int secondDice = removalMaximum - removalMinimum - firstDice + 2;
+        
+        //Insurance if either value came out invalid.
+        firstDice = (firstDice < 1) ? 1 : firstDice;
+        secondDice = (secondDice < 1) ? 1 : secondDice;
+
+        return random.nextInt(firstDice) + random.nextInt(secondDice) + removalMinimum;
     }
 
     @SuppressWarnings("unchecked")
