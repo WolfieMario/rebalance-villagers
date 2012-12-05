@@ -1,4 +1,4 @@
-author: "DerFlash - PluginBase by: WolfieMario"
+author: "DerFlash - Plugin base by: WolfieMario"
 database: false
 description: "Uses the values from this thread to rebalance villager trading:\r\n\
   http://www.minecraftforum.net/topic/1387693-quick-fix-to-villager-trading-a-detailed-rebalance-of-all-offers\r\
@@ -7,5 +7,5 @@ description: "Uses the values from this thread to rebalance villager trading:\r\
 main: com.hotmail.wolfiemario.rebalancevillagers.RebalanceVillagers
 name: Rebalance Villagers
 startup: startup
-version: '1.1.1'
+version: '1.2'
 softdepend: [Shopkeepers]
