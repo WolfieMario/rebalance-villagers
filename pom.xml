@@ -10,6 +10,10 @@
             <id>bukkit-repo</id>
             <url>http://repo.bukkit.org/content/groups/public</url>
         </repository>
+        <repository>
+            <id>CNa</id>
+            <url>http://cube-nation.de:8081/nexus/content/repositories/CNa</url>
+        </repository>
     </repositories>
     <build>
         <plugins>
@@ -26,26 +30,21 @@
     </build>
     <dependencies>
         <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>craftbukkit</artifactId>
-            <version>1.4.5-R0.1</version>
-            <scope>system</scope>
-		    <systemPath>${basedir}/dependencies/craftbukkit.jar</systemPath>            
-        </dependency>
-        <dependency>
-            <groupId>com.nisovin.shopkeepers</groupId>
-            <artifactId>ShopkeepersPlugin</artifactId>
-            <version>1.8</version>
-            <type>jar</type>
-		    <scope>system</scope>
-		    <systemPath>${basedir}/dependencies/Shopkeepers.jar</systemPath>            
-        </dependency>
-        <dependency>
             <groupId>org.avaje</groupId>
             <artifactId>ebean</artifactId>
             <version>2.7.3</version>
             <type>jar</type>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bukkit</groupId>
+            <artifactId>craftbukkit</artifactId>
+            <version>1.4.5-R0.1</version>
+        </dependency>
+        <dependency>
+        	<groupId>com.nisovin.shopkeepers</groupId>
+        	<artifactId>ShopkeepersPlugin</artifactId>
+        	<version>1.9</version>
         </dependency>
     </dependencies>
 </project>
