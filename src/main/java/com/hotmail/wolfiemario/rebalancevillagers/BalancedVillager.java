@@ -156,8 +156,6 @@ public class BalancedVillager extends EntityVillager
                         } while(true);
                         
                         if (toRemove != null) {
-                            System.out.println("Should remove: " + toRemove + " from: " + i.toArray());
-                            
                             // if we would remove all of our recipes, reactivate at least the first one!
                             if (toRemove.size() >= i.size()) {
                                 boolean firstOne = true;
