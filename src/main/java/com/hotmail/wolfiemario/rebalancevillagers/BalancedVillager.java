@@ -782,6 +782,11 @@ public class BalancedVillager extends EntityVillager
         }
     }
     
+    /**
+     * Generates the random max uses for an offer
+     * @param random - pass a random object here, so we don't need to create one every time
+     * @return a random max use count
+     */
     private static int maxUses(Random random) {
         int firstDice = (removalMaximum - removalMinimum)/2 + 1;
         int secondDice = removalMaximum - removalMinimum - firstDice + 2;
