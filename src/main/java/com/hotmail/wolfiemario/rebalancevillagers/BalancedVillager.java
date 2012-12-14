@@ -11,27 +11,7 @@ import com.hotmail.wolfiemario.rebalancevillagers.offers.CustomOffer;
 import com.hotmail.wolfiemario.rebalancevillagers.offers.PotentialOffersList;
 import com.hotmail.wolfiemario.rebalancevillagers.offers.SimpleOffer;
 
-import net.minecraft.server.Block;
-import net.minecraft.server.ChunkCoordinates;
-import net.minecraft.server.DamageSource;
-import net.minecraft.server.Entity;
-import net.minecraft.server.EntityHuman;
-import net.minecraft.server.EntityLiving;
-import net.minecraft.server.EntityVillager;
-import net.minecraft.server.IMerchant;
-import net.minecraft.server.IMonster;
-import net.minecraft.server.Item;
-import net.minecraft.server.ItemStack;
-import net.minecraft.server.MathHelper;
-import net.minecraft.server.MerchantRecipe;
-import net.minecraft.server.MerchantRecipeList;
-import net.minecraft.server.MobEffect;
-import net.minecraft.server.MobEffectList;
-import net.minecraft.server.NBTTagCompound;
-import net.minecraft.server.NPC;
-import net.minecraft.server.Tuple;
-import net.minecraft.server.Village;
-import net.minecraft.server.World;
+import net.minecraft.server.v1_4_5.*;
 
 /**
  * A custom extension of the EntityVillager class, for custom properties and offer generation.
@@ -588,13 +568,49 @@ public class BalancedVillager extends EntityVillager
      */
     public BalancedVillager(EntityVillager vil)
     {
+        this(vil, false);
+    }
+        
+    public BalancedVillager(EntityVillager vil, boolean check) {
+
         super(vil.world, vil.getProfession());
         
         NBTTagCompound dummyCompound = new NBTTagCompound();
         vil.b(dummyCompound); //Stores the villager data in the compound
         a(dummyCompound); //Retrieves that data in this object.
+        
+        if (check) {
+            findOutdatedOffers();
+        }
     }
     
+    private void findOutdatedOffers() {
+        Iterator<MerchantRecipe> iIterator = i.iterator();
+        while (iIterator.hasNext()) {
+            MerchantRecipe activeReceipe = iIterator.next();
+            
+            ItemStack buy1 = activeReceipe.getBuyItem1();
+            ItemStack buy2 = activeReceipe.getBuyItem2();
+            ItemStack buy3 = activeReceipe.getBuyItem3();
+            
+            if (buy1.id == currencyId) {
+                
+                for (Integer id : sellValues.keySet()) {
+                    
+                }
+
+                
+            } else if (buy3.id == currencyId){
+
+                for (Integer id : buyValues.keySet()) {
+                    
+                }
+
+            }
+            
+        }
+    }
+
     private static HashMap<Integer, Integer> compressedForms;  // private static final Map 
     
     private static int currencyId = Item.EMERALD.id;

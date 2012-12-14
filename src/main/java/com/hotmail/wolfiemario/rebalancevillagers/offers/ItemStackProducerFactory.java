@@ -2,10 +2,10 @@ package com.hotmail.wolfiemario.rebalancevillagers.offers;
 
 import java.util.Random;
 
-import net.minecraft.server.EnchantmentManager;
-import net.minecraft.server.ItemStack;
+import net.minecraft.server.v1_4_5.EnchantmentManager;
+import net.minecraft.server.v1_4_5.ItemStack;
 
-import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_4_5.inventory.CraftItemStack;
 
 
 /**

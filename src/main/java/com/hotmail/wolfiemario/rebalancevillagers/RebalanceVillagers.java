@@ -14,15 +14,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.minecraft.server.EntityVillager;
+import net.minecraft.server.v1_4_5.EntityVillager;
+
+import org.bukkit.craftbukkit.v1_4_5.CraftWorld;
+import org.bukkit.craftbukkit.v1_4_5.entity.CraftEntity;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.CraftWorld;
-import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager;
@@ -93,7 +94,7 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 		{
 			//Replaces default villagers with new villagers
 			//Thanks to Icyene for the help with this! Also http://forums.bukkit.org/threads/tutorial-how-to-customize-the-behaviour-of-a-mob-or-entity.54547/
-			Method entityTypesA = net.minecraft.server.EntityTypes.class.getDeclaredMethod("a", Class.class, String.class, int.class);
+			Method entityTypesA = net.minecraft.server.v1_4_5.EntityTypes.class.getDeclaredMethod("a", Class.class, String.class, int.class);
 			entityTypesA.setAccessible(true);
 			entityTypesA.invoke(entityTypesA, BalancedVillager.class, "Villager", 120);
 			
@@ -148,8 +149,8 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 		Entity entity = event.getEntity();
 		EntityType entityType = event.getEntityType();
 		
-		net.minecraft.server.World mcWorld = ((CraftWorld) entity.getWorld()).getHandle();
-		net.minecraft.server.Entity mcEntity = (((CraftEntity) entity).getHandle());
+		net.minecraft.server.v1_4_5.World mcWorld = ((CraftWorld) entity.getWorld()).getHandle();
+		net.minecraft.server.v1_4_5.Entity mcEntity = (((CraftEntity) entity).getHandle());
 		
 		if (entityType == EntityType.VILLAGER)
 		{
@@ -214,7 +215,7 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 		{
 			Collection<Villager> villagerList = world.getEntitiesByClass(Villager.class);
 			 
-			net.minecraft.server.World mcWorld = ((CraftWorld) world).getHandle();
+			net.minecraft.server.v1_4_5.World mcWorld = ((CraftWorld) world).getHandle();
 			
 			for(Villager vil: villagerList)
 			{
@@ -233,7 +234,7 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 	 * Converts the given villager into a BalancedVillager, leaving an identical villager.
 	 * Because the previous villager is removed, the new villager will have a different unique ID.
 	 */
-	private void convertVillager( EntityVillager vil, net.minecraft.server.World mcWorld)
+	private void convertVillager( EntityVillager vil, net.minecraft.server.v1_4_5.World mcWorld)
 	{
 		Location location = vil.getBukkitEntity().getLocation();
 		
@@ -253,10 +254,10 @@ public class RebalanceVillagers extends JavaPlugin implements Listener
 	private class ShopkeeperWaiter implements Runnable
 	{
 		private EntityVillager villager;
-		private net.minecraft.server.World mcWorld;
+		private net.minecraft.server.v1_4_5.World mcWorld;
 		private RebalanceVillagers plugin;
 		
-		private ShopkeeperWaiter(EntityVillager vil, net.minecraft.server.World world, RebalanceVillagers _plugin)
+		private ShopkeeperWaiter(EntityVillager vil, net.minecraft.server.v1_4_5.World world, RebalanceVillagers _plugin)
 		{
 			villager = vil;
 			mcWorld = world;
