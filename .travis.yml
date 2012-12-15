@@ -7,5 +7,5 @@ env:
     - secure: "K1jEdbVkQdzk/H1TQFPI5zCMsRzo7nSmRjIdHwSR36zH0u0Wh7Dx+XN7KM3z\nGbDw5IEGI26Q5S0pURGWoC9teH2rWtSca2xAnG+tCZ5utM2mN23aJs2TZcya\nOAQ+ZD8OAuOGAQelihoq0Xfsab5FcH5o4jKExz7hWT2ZedjcKlY="
     
 after_script:
-  - python addServer.py
+  - python .mvnSettings.py
   - mvn clean deploy --settings ~/.m2/mySettings.xml
