@@ -11,6 +11,16 @@
             <url>http://cube-nation.de:8081/nexus/content/groups/public/</url>
         </repository>
     </repositories>
+    <distributionManagement>
+        <repository>
+            <id>cna-releases</id>
+            <url>http://cube-nation.de:8081/nexus/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>cna-snapshots</id>
+            <url>http://cube-nation.de:8081/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
     <build>
         <plugins>
             <plugin>
@@ -43,14 +53,4 @@
             <version>1.4.5-R0.3</version>
         </dependency>
     </dependencies>
-    <distributionManagement>
-        <repository>
-            <id>cna-releases</id>
-            <url>http://cube-nation.de:8081/nexus/content/repositories/releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>cna-snapshots</id>
-            <url>http://cube-nation.de:8081/nexus/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
 </project>

@@ -125,9 +125,9 @@ public class ConfigLoader
 		}
 		
 		String checkAttempts = CONFIG_SHOPKEEPERS + ".times-to-check";
-		plugin.shopkeeperCheckAttempts = validateMinimumOfOne(getConfig().getInt(checkAttempts, 5), checkAttempts, CONFIG_WARNING_POSTFIX);
+		ShopkeeperWaiter.shopkeeperCheckAttempts = validateMinimumOfOne(getConfig().getInt(checkAttempts, 5), checkAttempts, CONFIG_WARNING_POSTFIX);
 		String checkDelay = CONFIG_SHOPKEEPERS + ".time-between-checks";
-		plugin.shopkeeperCheckDelay = validateMinimumOfOne(getConfig().getInt(checkDelay, 50), checkDelay, CONFIG_WARNING_POSTFIX);
+		ShopkeeperWaiter.shopkeeperCheckDelay = validateMinimumOfOne(getConfig().getInt(checkDelay, 50), checkDelay, CONFIG_WARNING_POSTFIX);
 	}
 	
 	/**
