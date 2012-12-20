@@ -80,7 +80,7 @@ public class ItemStackProducerFactory
 	 */
 	public static ItemStackProducer createItemStackProducer(org.bukkit.inventory.ItemStack stack)
 	{
-		return createItemStackProducer( CraftItemStack.createNMSItemStack(stack) );
+		return createItemStackProducer( CraftItemStack.asNMSCopy(stack) );
 	}
 	
 	
