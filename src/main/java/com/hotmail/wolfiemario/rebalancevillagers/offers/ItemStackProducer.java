@@ -1,6 +1,6 @@
 package com.hotmail.wolfiemario.rebalancevillagers.offers;
 
-import net.minecraft.server.v1_4_5.ItemStack;
+import net.minecraft.server.v1_4_6.ItemStack;
 
 /**
  * An ItemStackProducer is a class capable of creating (NMS) ItemStacks. The exact ItemStack produced may be determined in
