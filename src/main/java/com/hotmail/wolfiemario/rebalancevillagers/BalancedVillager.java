@@ -746,7 +746,7 @@ public class BalancedVillager extends EntityVillager
     }
     
 
-    public static void setCheckDryDrun(int count)           {   dryrunCheckTicks = count;  }
+    public static void setCheckDryRun(int count)           {   dryrunCheckTicks = count;  }
 
     public static void setDefaultOfferCount(int count)      {   defaultOfferCount = count;  }
     public static void setNewOfferCount(int count)          {   newOfferCount = count;      }

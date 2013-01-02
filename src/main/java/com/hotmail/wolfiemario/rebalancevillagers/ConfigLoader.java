@@ -99,8 +99,8 @@ public class ConfigLoader
 		
 		String particleTicks = CONFIG_GENERAL_TRADING + ".particle-ticks";
 		BalancedVillager.setParticleTicks(validateMinimumOfOne(getConfig().getInt(particleTicks, 200), particleTicks, CONFIG_WARNING_POSTFIX));
-		String checkDryDrun = CONFIG_GENERAL_TRADING + ".dryrun-check-ticks";
-        BalancedVillager.setCheckDryDrun(getConfig().getInt(checkDryDrun, 200));
+		String checkDryRun = CONFIG_GENERAL_TRADING + ".dryrun-check-ticks";
+        BalancedVillager.setCheckDryRun(getConfig().getInt(checkDryRun, 200));
 		String allowMulti = CONFIG_GENERAL_TRADING + ".allow-bickering";
 		BalancedVillager.setAllowMultivending(getConfig().getBoolean(allowMulti, false));
 		String allowChild = CONFIG_GENERAL_TRADING + ".can-trade-children";
