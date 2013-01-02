@@ -47,6 +47,9 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
     static final String OFFER_DEFAULT_CONFIG_FILENAME = "offers-default.yml";
     static final String OFFER_VANILLA_CONFIG_FILENAME = "offers-vanilla.yml";
 
+    private static boolean debug = false;
+    private static RebalanceVillagers plugin;
+
     public boolean allowDamage;
     public static final Integer[] DEFAULT_ALLOWED_PROFESSIONS = { 0, 1, 2, 3, 4 };
     public Integer[] allowedProfessions;
@@ -61,6 +64,8 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
     }
 
     public void onEnable() {
+        RebalanceVillagers.plugin = this;
+
         // Load config
         File file = new File(getDataFolder(), "config.yml");
         if (!file.exists()) saveDefaultConfig();
@@ -108,6 +113,11 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
     }
 
     public void onDisable() {
+    }
+    
+    public static void debugMsg(String msg) {
+        if (RebalanceVillagers.debug)
+             RebalanceVillagers.plugin.getLogger().log(Level.WARNING, msg);
     }
 
     /**
@@ -209,7 +219,7 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
             net.minecraft.server.v1_4_6.World mcWorld) {
         Location location = vil.getBukkitEntity().getLocation();
 
-        BalancedVillager balancedVil = new BalancedVillager(vil);
+        BalancedVillager balancedVil = new BalancedVillager(vil, true);
         balancedVil.setPosition(location.getX(), location.getY(),
                 location.getZ());
 

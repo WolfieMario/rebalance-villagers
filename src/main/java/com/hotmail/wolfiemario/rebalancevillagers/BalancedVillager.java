@@ -98,6 +98,9 @@ public class BalancedVillager extends EntityVillager
             }
         }
         
+        // check for outdated offers if needed
+        if (initialUpdateCheck) findOutdatedOffers();
+        
         if(!p() && j > 0) // trading related behavior - p == isTrading, j == timeUntilReset
         {
             j--;
@@ -141,7 +144,7 @@ public class BalancedVillager extends EntityVillager
                                 boolean firstOne = true;
                                 for (MerchantRecipe merchantrecipe : toRemove) {
                                     if (firstOne) {
-                                        System.out.println("Reactivate first one...");
+                                        RebalanceVillagers.debugMsg("Reactivate first one...");
                                         merchantrecipe.a(maxUses(random));
                                         firstOne = false;
                                     } else {
@@ -578,37 +581,115 @@ public class BalancedVillager extends EntityVillager
         NBTTagCompound dummyCompound = new NBTTagCompound();
         vil.b(dummyCompound); //Stores the villager data in the compound
         a(dummyCompound); //Retrieves that data in this object.
-        
-        if (check) {
-            findOutdatedOffers();
-        }
     }
     
+    @SuppressWarnings("unchecked")
     private void findOutdatedOffers() {
+        if (i == null) return;
+        initialUpdateCheck = false;
+        RebalanceVillagers.debugMsg("Checking for outdated offers in villager at: " + this.locX + "," + this.locY + "," + this.locZ);
+
         Iterator<MerchantRecipe> iIterator = i.iterator();
+        ArrayList<MerchantRecipe> outdated = null;
         while (iIterator.hasNext()) {
             MerchantRecipe activeReceipe = iIterator.next();
-            
+            RebalanceVillagers.debugMsg("-> Checking: " + activeReceipe);
+
             ItemStack buy1 = activeReceipe.getBuyItem1();
             ItemStack buy2 = activeReceipe.getBuyItem2();
             ItemStack buy3 = activeReceipe.getBuyItem3();
             
-            if (buy1.id == currencyId) {
+            if (!checkOffer(buy1, buy2, buy3)) {
+                if (outdated == null) outdated = new ArrayList<MerchantRecipe>();
+                outdated.add(activeReceipe);
+                RebalanceVillagers.debugMsg("=> Removing outdated offer!");
                 
-                for (Integer id : sellValues.keySet()) {
-                    
-                }
+            }
+        }
+        if (outdated != null) {
+            i.removeAll(outdated);
+            if (i.isEmpty()) {
+                j = generationTicks; //set offer update ticks to n
+                bI = true;
+            }
+        }
+        
+    }
+    
+    private boolean checkOffer(ItemStack buy1, ItemStack buy2, ItemStack buy3) {
+        // if he sells things
+        if (buy1 != null && (buy1.id == currencyId || getUncompressed(buy1.id) == currencyId) && buy3 != null) {
 
+            Tuple tuple = (Tuple)sellValues.get(buy3.id);
+            if (tuple == null) return false;
+            
+            int min = ((Integer)tuple.a()).intValue();
+            int max = ((Integer)tuple.b()).intValue();
+
+            // check if we have negative prices (so we sell x items for one currency item)
+            boolean neg = min < 0;
+            min = Math.abs(min);
+            max = Math.abs(max);
+            
+            if (neg) {
+                int amount = buy3.count * (isCompressed(buy3.id) ? 9 : 1);
+
+                RebalanceVillagers.debugMsg("--> Sell offer [" + min + " < " + amount + " < " + max + "]");
+                if (amount < max || amount > min) return false;
                 
-            } else if (buy3.id == currencyId){
+            } else {
+                int amount = buy1.count * (isCompressed(buy1.id) ? 9 : 1);
+                if (buy2 != null) amount = amount + (buy2.count * (isCompressed(buy2.id) ? 9 : 1));
+                
+                RebalanceVillagers.debugMsg("+-> Sell offer [" + min + " < " + amount + " < " + max + "]");
+                if (amount < min || amount > max) return false;
+            }
 
-                for (Integer id : buyValues.keySet()) {
-                    
-                }
+        // if he buys things
+        } else if (buy3 != null && (buy3.id == currencyId || getUncompressed(buy3.id) == currencyId) && buy1 != null){
+
+            Tuple tuple = (Tuple)buyValues.get(buy1.id);
+            if (tuple == null) return false;
+            
+            int min = ((Integer)tuple.a()).intValue();
+            int max = ((Integer)tuple.b()).intValue();
+            
+            // check if we have negative prices (so we buy x items for one currency item)
+            boolean neg = min < 0;
+            min = Math.abs(min);
+            max = Math.abs(max);
+            
+            if (neg) {
+                int price = buy3.count * (isCompressed(buy3.id) ? 9 : 1);
+                
+                RebalanceVillagers.debugMsg("--> Buy offer [" + min + " < " + price + " < " + max + "]");
+                if (price < max || price > min) return false;
+                
+            } else {
+                int amount = buy1.count * (isCompressed(buy1.id) ? 9 : 1);
+                if (buy2 != null) amount = amount + (buy2.count * (isCompressed(buy2.id) ? 9 : 1));
+                
+                RebalanceVillagers.debugMsg("+-> Buy offer [" + min + " < " + amount + " < " + max + "]");
+                if (amount < min || amount > max) return false;
 
             }
-            
+
         }
+        
+        RebalanceVillagers.debugMsg("--> Offer seems ok");
+        return true;
+    }
+    
+    private int getUncompressed(Integer cID) {
+        if (compressedForms.containsValue(cID)) {
+            for (int key : compressedForms.keySet()) {
+                if (compressedForms.get(key) == cID) return key;
+            }
+        }
+        return -1;
+    }
+    private boolean isCompressed(Integer cID) {
+        return getUncompressed(cID) != -1;
     }
 
     private static HashMap<Integer, Integer> compressedForms;  // private static final Map 
@@ -636,6 +717,8 @@ public class BalancedVillager extends EntityVillager
     
     private static int maxHealth = 20;
     
+    private boolean initialUpdateCheck = true;
+
     static
     {        
         // MOD START
