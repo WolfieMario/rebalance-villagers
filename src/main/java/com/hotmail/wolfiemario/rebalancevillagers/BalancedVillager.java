@@ -38,7 +38,7 @@ public class BalancedVillager extends EntityVillager
     {
         super(world, k);
         
-        profession = 0;
+        randomTickDivider = 0;
         f = false;
         g = false;
         village = null;
@@ -78,10 +78,10 @@ public class BalancedVillager extends EntityVillager
     @SuppressWarnings("unchecked")
     protected void bm()
     {
-        if(--profession <= 0)     //standard behavior
+        if(--randomTickDivider <= 0)     //standard behavior
         {
             world.villages.a(MathHelper.floor(locX), MathHelper.floor(locY), MathHelper.floor(locZ));
-            profession = 70 + random.nextInt(50);
+            randomTickDivider = 70 + random.nextInt(50);
             village = world.villages.getClosestVillage(MathHelper.floor(locX), MathHelper.floor(locY), MathHelper.floor(locZ), 32);
             if(village == null)
             {
@@ -547,7 +547,7 @@ public class BalancedVillager extends EntityVillager
         return compressedForms.containsKey(id);
     }
     
-    private int profession;
+    private int randomTickDivider;
     private boolean f;
     private boolean g;
     Village village;
