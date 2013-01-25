@@ -32,6 +32,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.mcstats.Metrics;
 
 /**
  * The Rebalance Villagers plugin's main class.
@@ -64,6 +65,13 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
     }
 
     public void onEnable() {
+		try {
+		    Metrics metrics = new Metrics(this);
+		    metrics.start();
+		} catch (IOException e) {
+		    // Failed to submit the stats :-(
+		}
+		
         RebalanceVillagers.plugin = this;
 
         // Load config
@@ -110,6 +118,7 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
             getLogger().info("Failed to modify villagers! Plugin is unloading.");
             this.setEnabled(false);
         }
+        
     }
 
     public void onDisable() {
