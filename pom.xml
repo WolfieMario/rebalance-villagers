@@ -85,7 +85,7 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>craftbukkit</artifactId>
-            <version>1.4.7-R0.2</version>
+            <version>1.5-R0.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.mcstats.bukkit</groupId>

@@ -11,7 +11,7 @@ import com.hotmail.wolfiemario.rebalancevillagers.offers.CustomOffer;
 import com.hotmail.wolfiemario.rebalancevillagers.offers.PotentialOffersList;
 import com.hotmail.wolfiemario.rebalancevillagers.offers.SimpleOffer;
 
-import net.minecraft.server.v1_4_R1.*;
+import net.minecraft.server.v1_5_R1.*;
 
 /**
  * A custom extension of the EntityVillager class, for custom properties and offer generation.
@@ -19,7 +19,7 @@ import net.minecraft.server.v1_4_R1.*;
  * @author Mojang staff (likely Jeb): a lot of this class is copied from EntityVillager.
  */
 public class BalancedVillager extends EntityVillager
-    implements NPC, IMerchant
+	implements NPC, IMerchant
 {
     
     /**
@@ -44,7 +44,8 @@ public class BalancedVillager extends EntityVillager
         village = null;
         setProfession(k);
         texture = "/mob/villager/villager.png";
-        bG = 0.5F;
+        bI = 0.5F;
+        a(0.6F, 1.8F);
         getNavigation().b(true);
         getNavigation().a(true);
 //        goalSelector.a(0, new PathfinderGoalFloat(this));
@@ -67,7 +68,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: isAIEnabled(): use new AI
      */
-    public boolean be()
+    public boolean bh()
     {
         return true;
     }
@@ -76,7 +77,7 @@ public class BalancedVillager extends EntityVillager
      * (NMS) EntityVillager method: updateAITick()
      */
     @SuppressWarnings("unchecked")
-    protected void bm()
+    protected void bp()
     {
         if(--randomTickDivider <= 0)     //standard behavior
         {
@@ -85,14 +86,14 @@ public class BalancedVillager extends EntityVillager
             village = world.villages.getClosestVillage(MathHelper.floor(locX), MathHelper.floor(locY), MathHelper.floor(locZ), 32);
             if(village == null)
             {
-                aL(); //detatchHome
+            	aO(); //detatchHome
             } else
             {
                 ChunkCoordinates chunkcoordinates = village.getCenter();
                 b(chunkcoordinates.x, chunkcoordinates.y, chunkcoordinates.z, (int)((float)village.getSize() * 0.6F));
-                if(bL)
+                if(bN)
                 {
-                    bL = false;
+                    bN = false;
                     village.b(5);
                 }
             }
@@ -106,12 +107,12 @@ public class BalancedVillager extends EntityVillager
             j--;
             if(j <= 0) // timeUntilReset
             {
-                if(bI) // bI == needsInitilization - were we adding a new offer?
+                if(bK) // bI == needsInitilization - were we adding a new offer?
                 {
-                    if(village != null && bK != null)
+                    if(village != null && bM != null)
                     {
                         world.broadcastEntityEffect(this, (byte)14);
-                        village.a(bK, 1);
+                        village.a(bM, 1);
                     }
                     generateNewOffers(newOfferCount); //Add new offer(s)
                     
@@ -158,7 +159,7 @@ public class BalancedVillager extends EntityVillager
 
                     }
                     
-                    bI = false;
+                    bK = false;
                 }
                 addEffect(new MobEffect(MobEffectList.REGENERATION.id, particleTicks, 0));  // addEffect(new MobEffect(MobEffectList.REGENERATION.id, 200, 0));
             }
@@ -167,14 +168,14 @@ public class BalancedVillager extends EntityVillager
         // if we still have no active offer, activate at least one offer so we don't run dry...
         checkForInactiveOffersOnly(false);
 
-        super.bm();
+        super.bp();
     }
     
     
     /**
      * (NMS) EntityVillager method: interact: Attempt to trade with entityhuman
      */
-    public boolean a(EntityHuman entityhuman)
+    public boolean a_(EntityHuman entityhuman)
     {
         ItemStack itemstack = entityhuman.inventory.getItemInHand();
         boolean flag = itemstack != null && itemstack.id == Item.MONSTER_EGG.id;
@@ -182,13 +183,13 @@ public class BalancedVillager extends EntityVillager
         {
             if(!world.isStatic)
             {
-                b_(entityhuman);
-                entityhuman.openTrade(this);
+                a(entityhuman);
+                entityhuman.openTrade(this, getCustomName());
             }
             return true;
         } else
         {
-            return super.a(entityhuman);
+            return super.a_(entityhuman);
         }
     }
     
@@ -215,7 +216,7 @@ public class BalancedVillager extends EntityVillager
     {
         super.b(nbttagcompound);
         nbttagcompound.setInt("Profession", getProfession());
-        nbttagcompound.setInt("Riches", bJ);
+        nbttagcompound.setInt("Riches", bL);
         if(i != null)
             nbttagcompound.setCompound("Offers", i.a());
     }
@@ -227,7 +228,7 @@ public class BalancedVillager extends EntityVillager
     {
         super.a(nbttagcompound);
         setProfession(nbttagcompound.getInt("Profession"));
-        bJ = nbttagcompound.getInt("Riches");
+        bL = nbttagcompound.getInt("Riches");
         if(nbttagcompound.hasKey("Offers"))
         {
             NBTTagCompound nbttagcompound1 = nbttagcompound.getCompound("Offers");
@@ -236,9 +237,9 @@ public class BalancedVillager extends EntityVillager
     }
     
     /**
-     * (NMS) EntityVillager method: canDespawn()
+     * (NMS) EntityVillager method: isTypeNotPersistent()
      */
-    protected boolean bj()
+    protected boolean isTypeNotPersistent()
     {
         return false;
     }
@@ -246,7 +247,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: idle sound string
      */
-    protected String aY()
+    protected String bb()
     {
         return "mob.villager.default";
     }
@@ -254,7 +255,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: hurt sound string
      */
-    protected String aZ()
+    protected String bc()
     {
         return "mob.villager.defaulthurt";
     }
@@ -262,7 +263,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: death sound string
      */
-    protected String ba()
+    protected String bd()
     {
         return "mob.villager.defaultdeath";
     }
@@ -288,7 +289,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: set IsMating()
      */
-    public void f(boolean flag)
+    public void i(boolean flag)
     {
         f = flag;
     }
@@ -296,7 +297,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: set IsPlaying()
      */
-    public void g(boolean flag)
+    public void j(boolean flag)
     {
         g = flag;
     }
@@ -386,14 +387,14 @@ public class BalancedVillager extends EntityVillager
         if( (merchantrecipe.a( (MerchantRecipe)i.get(i.size() - 1) ) || newForAnyTrade) && (random.nextInt(100) < newProbability) ) //Does this offer equal the last offer on the list?
         {
             j = generationTicks; //set offer update ticks to n
-            bI = true;
+            bK = true;
             if(h != null)
-                bK = h.getName();
+                bM = h.getName();
             else
-                bK = null;
+                bM = null;
         }
         if(merchantrecipe.getBuyItem1().id == currencyId)
-            bJ += merchantrecipe.getBuyItem1().count; //increment riches by amount of currency item.
+            bL += merchantrecipe.getBuyItem1().count; //increment riches by amount of currency item.
     }
     
     /**
@@ -409,7 +410,7 @@ public class BalancedVillager extends EntityVillager
     
 //    private float j(float f1)
 //    {
-//        float f2 = f1 + bM;
+//        float f2 = f1 + bO;
 //        if(f2 > 0.9F)
 //            return 0.9F - (f2 - 0.9F);
 //        else
@@ -554,13 +555,13 @@ public class BalancedVillager extends EntityVillager
     private EntityHuman h;
     private MerchantRecipeList i;
     private int j;
-    private boolean bI;
-    private int bJ;
-    private String bK;
-    private boolean bL;
-//    private float bM;
-    private static HashMap<Integer, Tuple> buyValues = new HashMap<Integer, Tuple>(); // bN 
-    private static HashMap<Integer, Tuple> sellValues = new HashMap<Integer, Tuple>(); // bO
+    private boolean bK;
+    private int bL;
+    private String bM;
+    private boolean bN;
+//    private float bO;
+    private static HashMap<Integer, Tuple> buyValues = new HashMap<Integer, Tuple>(); // bP 
+    private static HashMap<Integer, Tuple> sellValues = new HashMap<Integer, Tuple>(); // bQ
     
     
     // ADD START
@@ -610,7 +611,7 @@ public class BalancedVillager extends EntityVillager
             i.removeAll(outdated);
             if (i.isEmpty()) {
                 j = generationTicks; //set offer update ticks to n
-                bI = true;
+                bK = true;
             }
         }
         
