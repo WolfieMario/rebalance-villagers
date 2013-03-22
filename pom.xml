@@ -85,7 +85,7 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>craftbukkit</artifactId>
-            <version>1.5-R0.0.1</version>
+            <version>1.5.1-R0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.mcstats.bukkit</groupId>
@@ -94,4 +94,5 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
+    <packaging>maven-plugin</packaging>
 </project>
