@@ -357,7 +357,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: Binds a player to this Villager
      */
-    public void b_(EntityHuman entityhuman)
+    public void a(EntityHuman entityhuman)
     {
         h = entityhuman;
     }
