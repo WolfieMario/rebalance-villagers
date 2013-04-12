@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.hotmail.wolfiemario.rebalancevillagers</groupId>
     <artifactId>RebalanceVillagers</artifactId>
-    <version>1.5.1</version>
+    <version>1.5.1.1-SNAPSHOT</version>
     <name>RebalanceVillagers</name>
     <url>http://dev.bukkit.org/server-mods/rebalance-villagers/</url>
     <repositories>
