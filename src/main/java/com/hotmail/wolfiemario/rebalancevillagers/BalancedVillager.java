@@ -46,6 +46,10 @@ public class EntityVillager extends EntityAgeable
         return true;
     }
 
+    /**
+     * (NMS) EntityVillager method: updateAITick()
+     */
+    @SuppressWarnings("unchecked")
     protected void bg()
     {
         if(--profession <= 0)
@@ -100,6 +104,9 @@ public class EntityVillager extends EntityAgeable
         super.bg();
     }
 
+    /**
+     * (NMS) EntityVillager method: interact: Attempt to trade with entityhuman
+     */
     public boolean a(EntityHuman entityhuman)
     {
         ItemStack itemstack = entityhuman.inventory.getItemInHand();
@@ -118,12 +125,18 @@ public class EntityVillager extends EntityAgeable
         }
     }
 
+    /**
+     * (NMS) EntityVillager method: entityInit()
+     */
     protected void a()
     {
         super.a();
         datawatcher.a(16, Integer.valueOf(0));
     }
 
+    /**
+     * (NMS) EntityVillager method: stores this villager's NBT data.
+     */
     public void b(NBTTagCompound nbttagcompound)
     {
         super.b(nbttagcompound);
@@ -145,11 +158,17 @@ public class EntityVillager extends EntityAgeable
         }
     }
 
+    /**
+     * (NMS) EntityVillager method: isTypeNotPersistent()
+     */
     protected boolean isTypeNotPersistent()
     {
         return false;
     }
 
+    /**
+     * (NMS) EntityVillager method: idle sound string
+     */
     protected String r()
     {
         if(bS())
@@ -158,11 +177,17 @@ public class EntityVillager extends EntityAgeable
             return "mob.villager.idle";
     }
 
+    /**
+     * (NMS) EntityVillager method: hurt sound string
+     */
     protected String aK()
     {
         return "mob.villager.hit";
     }
 
+    /**
+     * (NMS) EntityVillager method: death sound string
+     */
     protected String aL()
     {
         return "mob.villager.death";
@@ -178,26 +203,41 @@ public class EntityVillager extends EntityAgeable
         return datawatcher.getInt(16);
     }
 
+    /**
+     * (NMS) EntityVillager method: isMating()
+     */
     public boolean bQ()
     {
         return br;
     }
 
+    /**
+     * (NMS) EntityVillager method: set IsMating()
+     */
     public void j(boolean flag)
     {
         br = flag;
     }
 
+    /**
+     * (NMS) EntityVillager method: set IsPlaying()
+     */
     public void k(boolean flag)
     {
         bs = flag;
     }
 
+    /**
+     * (NMS) EntityVillager method: isPlaying()
+     */
     public boolean bR()
     {
         return bs;
     }
 
+    /**
+     * (NMS) EntityVillager method: setRevengeTarget()
+     */
     public void b(EntityLiving entityliving)
     {
         super.b(entityliving);
@@ -239,21 +279,33 @@ public class EntityVillager extends EntityAgeable
         super.die(damagesource);
     }
 
+    /**
+     * (NMS) EntityVillager method: Binds a player to this Villager
+     */
     public void a_(EntityHuman entityhuman)
     {
         tradingPlayer = entityhuman;
     }
 
+    /**
+     * (NMS) EntityVillager method: Returns the player bound to this Villager
+     */
     public EntityHuman m_()
     {
         return tradingPlayer;
     }
 
+    /**
+     * (NMS) EntityVillager method: Is a player bound to this Villager?
+     */
     public boolean bS()
     {
         return tradingPlayer != null;
     }
 
+    /**
+     * (NMS) EntityVillager method: Offer addition and removal, and riches count, called when a trade is made.
+     */
     public void a(MerchantRecipe merchantrecipe)
     {
         merchantrecipe.f();
@@ -284,6 +336,9 @@ public class EntityVillager extends EntityAgeable
         }
     }
 
+    /**
+     * (NMS) EntityVillager method: Gives offers, generating one if none exist.
+     */
     public MerchantRecipeList getOffers(EntityHuman entityhuman)
     {
         if(bu == null)
