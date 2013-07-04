@@ -106,8 +106,8 @@ public class ConfigLoader
 		String allowChild = CONFIG_GENERAL_TRADING + ".can-trade-children";
 		BalancedVillager.setCanTradeChildren(getConfig().getBoolean(allowChild, false));
 		
-		String maxHealth = CONFIG_GENERAL + ".max-health";
-		BalancedVillager_old.setMaxHealth(validateMinimumOfOne(getConfig().getInt(maxHealth, 20), maxHealth, CONFIG_WARNING_POSTFIX));
+//		String maxHealth = CONFIG_GENERAL + ".max-health";
+//		BalancedVillager.setMaxHealth(validateMinimumOfOne(getConfig().getInt(maxHealth, 20), maxHealth, CONFIG_WARNING_POSTFIX));
 		plugin.allowDamage = getConfig().getBoolean(CONFIG_GENERAL + ".allow-damage", true);
 		
 		String professions = CONFIG_GENERAL + ".allowed-spawn-professions";
