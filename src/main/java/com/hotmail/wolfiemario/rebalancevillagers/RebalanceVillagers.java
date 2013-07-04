@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.minecraft.server.v1_5_R3.EntityVillager;
+import net.minecraft.server.v1_6_R1.EntityVillager;
 
-import org.bukkit.craftbukkit.v1_5_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_5_R3.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_6_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_6_R1.entity.CraftEntity;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -91,9 +91,9 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
             // Replaces default villagers with new villagers
             // Thanks to Icyene for the help with this! Also
             // http://forums.bukkit.org/threads/tutorial-how-to-customize-the-behaviour-of-a-mob-or-entity.54547/
-            Method entityTypesA = net.minecraft.server.v1_5_R3.EntityTypes.class.getDeclaredMethod("a", Class.class, String.class, int.class);
+            Method entityTypesA = net.minecraft.server.v1_6_R1.EntityTypes.class.getDeclaredMethod("a", Class.class, String.class, int.class);
             entityTypesA.setAccessible(true);
-            entityTypesA.invoke(entityTypesA, BalancedVillager.class, "Villager", 120);
+            entityTypesA.invoke(entityTypesA, BalancedVillager_old.class, "Villager", 120);
 
             // Checks if Shopkeepers is running
             try {
@@ -141,9 +141,9 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
         Entity entity = event.getEntity();
         EntityType entityType = event.getEntityType();
 
-        net.minecraft.server.v1_5_R3.World mcWorld = ((CraftWorld) entity
+        net.minecraft.server.v1_6_R1.World mcWorld = ((CraftWorld) entity
                 .getWorld()).getHandle();
-        net.minecraft.server.v1_5_R3.Entity mcEntity = (((CraftEntity) entity)
+        net.minecraft.server.v1_6_R1.Entity mcEntity = (((CraftEntity) entity)
                 .getHandle());
 
         if (entityType == EntityType.VILLAGER) {
@@ -151,7 +151,7 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
 
             // This should only occur if convertVillager triggered this event.
             // This is unnecessary repetition; skip it.
-            if (mcEntity instanceof BalancedVillager
+            if (mcEntity instanceof BalancedVillager_old
                     && event.getSpawnReason().equals(SpawnReason.CUSTOM))
                 return;
 
@@ -170,7 +170,7 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
                                 .nextInt(allowedProfessions.length)]); // mouthful
 
             // Not a BalancedVillager yet!
-            if ((mcEntity instanceof BalancedVillager) == false) {
+            if ((mcEntity instanceof BalancedVillager_old) == false) {
                 // Check if this is a Shopkeeper
                 if (ShopkeepersHelper.shopkeepersActive()) {
                     Bukkit.getScheduler().runTaskAsynchronously(this, new ShopkeeperWaiter(entityVil, mcWorld, this));
@@ -190,7 +190,7 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
         if (!allowDamage
-                && (((CraftEntity) event.getEntity()).getHandle()) instanceof BalancedVillager)
+                && (((CraftEntity) event.getEntity()).getHandle()) instanceof BalancedVillager_old)
             event.setCancelled(true);
     }
 
@@ -205,7 +205,7 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
             Collection<Villager> villagerList = world
                     .getEntitiesByClass(Villager.class);
 
-            net.minecraft.server.v1_5_R3.World mcWorld = ((CraftWorld) world)
+            net.minecraft.server.v1_6_R1.World mcWorld = ((CraftWorld) world)
                     .getHandle();
 
             for (Villager vil : villagerList) {
@@ -225,10 +225,10 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
      * have a different unique ID.
      */
     public void convertVillager(EntityVillager vil,
-            net.minecraft.server.v1_5_R3.World mcWorld) {
+            net.minecraft.server.v1_6_R1.World mcWorld) {
         Location location = vil.getBukkitEntity().getLocation();
 
-        BalancedVillager balancedVil = new BalancedVillager(vil, true);
+        BalancedVillager_old balancedVil = new BalancedVillager_old(vil, true);
         balancedVil.setPosition(location.getX(), location.getY(),
                 location.getZ());
 
