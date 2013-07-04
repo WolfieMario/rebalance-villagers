@@ -76,35 +76,35 @@ public class ConfigLoader
 	 */
 	void applyConfig()
 	{
-		BalancedVillager_old.setOfferRemoval(getConfig().getBoolean(CONFIG_REMOVE_OFFERS, true));
+		BalancedVillager.setOfferRemoval(getConfig().getBoolean(CONFIG_REMOVE_OFFERS, true));
 		
 		String removalMin = CONFIG_REMOVAL_CHANCE + ".minimum";
 		int removalMinimum = getConfig().getInt(removalMin, 3);
 		String removalMax = CONFIG_REMOVAL_CHANCE + ".maximum";
 		int removalMaximum = getConfig().getInt(removalMax, 13);
-		BalancedVillager_old.setOfferRemovalRange(removalMinimum, removalMaximum);
+		BalancedVillager.setOfferRemovalRange(removalMinimum, removalMaximum);
 		if(removalMinimum > removalMaximum)
 			getLogger().info("Warning: '" + removalMin + "' is greater than '" + removalMax + "'! " + CONFIG_WARNING_POSTFIX);
 		
 		String defaultOfferCount = CONFIG_OFFER_GENERATION + ".default-offer-count";
-		BalancedVillager_old.setDefaultOfferCount(validateMinimumOfOne(getConfig().getInt(defaultOfferCount, 1), defaultOfferCount, CONFIG_WARNING_POSTFIX));
+		BalancedVillager.setDefaultOfferCount(validateMinimumOfOne(getConfig().getInt(defaultOfferCount, 1), defaultOfferCount, CONFIG_WARNING_POSTFIX));
 		String newOfferCount = CONFIG_OFFER_GENERATION + ".new-offer-count";
-		BalancedVillager_old.setNewOfferCount(validateMinimumOfOne(getConfig().getInt(newOfferCount, 1), newOfferCount, CONFIG_WARNING_POSTFIX));
+		BalancedVillager.setNewOfferCount(validateMinimumOfOne(getConfig().getInt(newOfferCount, 1), newOfferCount, CONFIG_WARNING_POSTFIX));
 		String generationTicks = CONFIG_OFFER_GENERATION + ".generation-ticks";
-		BalancedVillager_old.setGenerationTicks(validateMinimumOfOne(getConfig().getInt(generationTicks, 60), generationTicks, CONFIG_WARNING_POSTFIX));
+		BalancedVillager.setGenerationTicks(validateMinimumOfOne(getConfig().getInt(generationTicks, 60), generationTicks, CONFIG_WARNING_POSTFIX));
 		String forAny = CONFIG_OFFER_GENERATION + ".for-any-trade";
-		BalancedVillager_old.setForAnyTrade(getConfig().getBoolean(forAny, false));
+		BalancedVillager.setForAnyTrade(getConfig().getBoolean(forAny, false));
 		String probability = CONFIG_OFFER_GENERATION + ".probability";
-		BalancedVillager_old.setNewProbability(getConfig().getInt(probability, 100));
+		BalancedVillager.setNewProbability(getConfig().getInt(probability, 100));
 		
 		String particleTicks = CONFIG_GENERAL_TRADING + ".particle-ticks";
-		BalancedVillager_old.setParticleTicks(validateMinimumOfOne(getConfig().getInt(particleTicks, 200), particleTicks, CONFIG_WARNING_POSTFIX));
+		BalancedVillager.setParticleTicks(validateMinimumOfOne(getConfig().getInt(particleTicks, 200), particleTicks, CONFIG_WARNING_POSTFIX));
 		String checkDryRun = CONFIG_GENERAL_TRADING + ".dryrun-check-ticks";
-        BalancedVillager_old.setCheckDryRun(getConfig().getInt(checkDryRun, 200));
+        BalancedVillager.setCheckDryRun(getConfig().getInt(checkDryRun, 200));
 		String allowMulti = CONFIG_GENERAL_TRADING + ".allow-bickering";
-		BalancedVillager_old.setAllowMultivending(getConfig().getBoolean(allowMulti, false));
+		BalancedVillager.setAllowMultivending(getConfig().getBoolean(allowMulti, false));
 		String allowChild = CONFIG_GENERAL_TRADING + ".can-trade-children";
-		BalancedVillager_old.setCanTradeChildren(getConfig().getBoolean(allowChild, false));
+		BalancedVillager.setCanTradeChildren(getConfig().getBoolean(allowChild, false));
 		
 		String maxHealth = CONFIG_GENERAL + ".max-health";
 		BalancedVillager_old.setMaxHealth(validateMinimumOfOne(getConfig().getInt(maxHealth, 20), maxHealth, CONFIG_WARNING_POSTFIX));
@@ -141,7 +141,7 @@ public class ConfigLoader
 		if(!idExists(currencyId, currencyName, CONFIG_CURRENCY_ITEM, OFFERS_WARNING_POSTFIX))
 			currencyId = Item.EMERALD.id;
 		ItemIDGetter.registerName(CONFIG_CURRENCY_ITEM, currencyId); //Allow users to use "currency-item" instead of an item name
-		BalancedVillager_old.setCurrencyItem(currencyId);
+		BalancedVillager.setCurrencyItem(currencyId);
 		
 		//This is needed for the hardcoded default gold offer to work properly, so we prepare it ahead of time.
 		HashMap<Integer, Tuple> buyValues = new HashMap<Integer, Tuple>();
@@ -153,7 +153,7 @@ public class ConfigLoader
 		if(!pathContentsExists(professions, CONFIG_POTENTIAL_OFFERS, OFFERS_WARNING_POSTFIX))
 		{
 			//The only possible offer at this point is the default, which is all we will assign.
-			BalancedVillager_old.setBuyValues(buyValues);
+			BalancedVillager.setBuyValues(buyValues);
 			return;
 		}
 		Set<String> professionNames = professions.getKeys(false);
@@ -203,7 +203,7 @@ public class ConfigLoader
 			
 			offersByProfession.put(professionId, offers);
 		}
-		BalancedVillager_old.setOffersByProfession(offersByProfession);
+		BalancedVillager.setOffersByProfession(offersByProfession);
 		
 		//Get buy values
 		ConfigurationSection configBuyValues = getOfferConfig().getConfigurationSection(CONFIG_BUY_VALUES);
@@ -212,7 +212,7 @@ public class ConfigLoader
 			Set<String> buyNames = configBuyValues.getKeys(false);
 			populateValuesHashMap(buyValues, buyNames, CONFIG_BUY_VALUES);
 		}
-		BalancedVillager_old.setBuyValues(buyValues);
+		BalancedVillager.setBuyValues(buyValues);
 		
 		//Get sell values
 		HashMap<Integer, Tuple> sellValues = new HashMap<Integer, Tuple>();
@@ -222,7 +222,7 @@ public class ConfigLoader
 			Set<String> sellNames = configSellValues.getKeys(false);
 			populateValuesHashMap(sellValues, sellNames, CONFIG_SELL_VALUES);
 		}
-		BalancedVillager_old.setSellValues(sellValues);
+		BalancedVillager.setSellValues(sellValues);
 		
 	}
 	

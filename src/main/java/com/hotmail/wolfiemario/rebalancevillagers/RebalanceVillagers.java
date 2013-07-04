@@ -93,7 +93,7 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
             // http://forums.bukkit.org/threads/tutorial-how-to-customize-the-behaviour-of-a-mob-or-entity.54547/
             Method entityTypesA = net.minecraft.server.v1_6_R1.EntityTypes.class.getDeclaredMethod("a", Class.class, String.class, int.class);
             entityTypesA.setAccessible(true);
-            entityTypesA.invoke(entityTypesA, BalancedVillager_old.class, "Villager", 120);
+            entityTypesA.invoke(entityTypesA, BalancedVillager.class, "Villager", 120);
 
             // Checks if Shopkeepers is running
             try {
@@ -151,7 +151,7 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
 
             // This should only occur if convertVillager triggered this event.
             // This is unnecessary repetition; skip it.
-            if (mcEntity instanceof BalancedVillager_old
+            if (mcEntity instanceof BalancedVillager
                     && event.getSpawnReason().equals(SpawnReason.CUSTOM))
                 return;
 
@@ -170,7 +170,7 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
                                 .nextInt(allowedProfessions.length)]); // mouthful
 
             // Not a BalancedVillager yet!
-            if ((mcEntity instanceof BalancedVillager_old) == false) {
+            if ((mcEntity instanceof BalancedVillager) == false) {
                 // Check if this is a Shopkeeper
                 if (ShopkeepersHelper.shopkeepersActive()) {
                     Bukkit.getScheduler().runTaskAsynchronously(this, new ShopkeeperWaiter(entityVil, mcWorld, this));
@@ -190,7 +190,7 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
         if (!allowDamage
-                && (((CraftEntity) event.getEntity()).getHandle()) instanceof BalancedVillager_old)
+                && (((CraftEntity) event.getEntity()).getHandle()) instanceof BalancedVillager)
             event.setCancelled(true);
     }
 
@@ -228,7 +228,7 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
             net.minecraft.server.v1_6_R1.World mcWorld) {
         Location location = vil.getBukkitEntity().getLocation();
 
-        BalancedVillager_old balancedVil = new BalancedVillager_old(vil, true);
+        BalancedVillager balancedVil = new BalancedVillager(vil, true);
         balancedVil.setPosition(location.getX(), location.getY(),
                 location.getZ());
 
