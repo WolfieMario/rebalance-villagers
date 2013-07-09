@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import net.minecraft.server.v1_6_R1.Item;
-import net.minecraft.server.v1_6_R1.Tuple;
+import net.minecraft.server.v1_6_R2.Item;
+import net.minecraft.server.v1_6_R2.Tuple;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;

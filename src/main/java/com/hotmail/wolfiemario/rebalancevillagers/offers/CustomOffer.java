@@ -1,7 +1,7 @@
 package com.hotmail.wolfiemario.rebalancevillagers.offers;
 
-import net.minecraft.server.v1_6_R1.ItemStack;
-import net.minecraft.server.v1_6_R1.MerchantRecipe;
+import net.minecraft.server.v1_6_R2.ItemStack;
+import net.minecraft.server.v1_6_R2.MerchantRecipe;
 
 /**
  * A CustomOffer, like an AbstractOffer, represents a merchant offer's probability value. In addition, it represents

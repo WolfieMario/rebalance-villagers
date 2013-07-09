@@ -7,7 +7,7 @@ import com.hotmail.wolfiemario.rebalancevillagers.offers.CustomOffer;
 import com.hotmail.wolfiemario.rebalancevillagers.offers.PotentialOffersList;
 import com.hotmail.wolfiemario.rebalancevillagers.offers.SimpleOffer;
 
-import net.minecraft.server.v1_6_R1.*;
+import net.minecraft.server.v1_6_R2.*;
 
 public class BalancedVillager extends EntityVillager
     implements IMerchant, NPC
@@ -18,23 +18,23 @@ public class BalancedVillager extends EntityVillager
         this(world, 0);
     }
 
-    public BalancedVillager(World world, int i)
+    public BalancedVillager(World world, int k)
     {
         super(world);
-        setProfession(i);
+        setProfession(k);
         a(0.6F, 1.8F);
         getNavigation().b(true);
         getNavigation().a(true);
 
     }
 
-    protected void ax()
+    protected void ay()
     {
-        super.ax();
-        a(GenericAttributes.d).a(0.5D);
+        super.ay();
+        getAttributeInstance(GenericAttributes.d).setValue(0.5D);
     }
 
-    public boolean bb()
+    public boolean be()
     {
         return true;
     }
@@ -43,7 +43,7 @@ public class BalancedVillager extends EntityVillager
      * (NMS) EntityVillager method: updateAITick()
      */
     @SuppressWarnings("unchecked")
-    protected void bg()
+    protected void bj()
     {
         if(--profession <= 0)     //standard behavior
         {
@@ -52,7 +52,7 @@ public class BalancedVillager extends EntityVillager
             village = world.villages.getClosestVillage(MathHelper.floor(locX), MathHelper.floor(locY), MathHelper.floor(locZ), 32);
             if(village == null)
             {
-                bN(); //detatchHome
+                bR(); //detatchHome
             } else
             {
                 ChunkCoordinates chunkcoordinates = village.getCenter();
@@ -68,7 +68,7 @@ public class BalancedVillager extends EntityVillager
         // check for outdated offers if needed
         if (initialUpdateCheck) findOutdatedOffers();
         
-        if(!bS() && offerUpdateTicks > 0) // trading related behavior - bS == isTrading, bv == timeUntilReset
+        if(!bW() && offerUpdateTicks > 0) // trading related behavior - bS == isTrading, bv == timeUntilReset
         {
             offerUpdateTicks--;
             if(offerUpdateTicks <= 0) // timeUntilReset
@@ -136,7 +136,7 @@ public class BalancedVillager extends EntityVillager
         // if we still have no active offer, activate at least one offer so we don't run dry...
         checkForInactiveOffersOnly(false);
         
-        super.bg();
+        super.bj();
     }
 
     /**
@@ -146,7 +146,7 @@ public class BalancedVillager extends EntityVillager
     {
         ItemStack itemstack = entityhuman.inventory.getItemInHand();
         boolean flag = itemstack != null && itemstack.id == Item.MONSTER_EGG.id;
-        if(!flag && isAlive() && (!bS() || allowMultivending) && (!isBaby() || canTradeChildren)) //alive, adult, and nobody else is trading
+        if(!flag && isAlive() && (!bW() || allowMultivending) && (!isBaby() || canTradeChildren)) //alive, adult, and nobody else is trading
         {
             if(!world.isStatic)
             {
@@ -166,7 +166,6 @@ public class BalancedVillager extends EntityVillager
     protected void a()
     {
         super.a();
-        datawatcher.a(16, Integer.valueOf(0)); // ???
     }
 
     /**
@@ -206,7 +205,7 @@ public class BalancedVillager extends EntityVillager
      */
     protected String r()
     {
-        if(bS())
+        if(bW())
             return "mob.villager.haggle";
         else
             return "mob.villager.idle";
@@ -215,7 +214,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: hurt sound string
      */
-    protected String aK()
+    protected String aN()
     {
         return "mob.villager.hit";
     }
@@ -223,14 +222,14 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: death sound string
      */
-    protected String aL()
+    protected String aO()
     {
         return "mob.villager.death";
     }
 
-    public void setProfession(int i)
+    public void setProfession(int k)
     {
-        datawatcher.watch(16, Integer.valueOf(i));
+        datawatcher.watch(16, Integer.valueOf(k));
     }
 
     public int getProfession()
@@ -241,7 +240,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: isMating()
      */
-    public boolean bQ()
+    public boolean bU()
     {
         return br;
     }
@@ -249,7 +248,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: set IsMating()
      */
-    public void j(boolean flag)
+    public void i(boolean flag)
     {
         br = flag;
     }
@@ -257,7 +256,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: set IsPlaying()
      */
-    public void k(boolean flag)
+    public void j(boolean flag)
     {
         bs = flag;
     }
@@ -265,7 +264,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: isPlaying()
      */
-    public boolean bR()
+    public boolean bV()
     {
         return bs;
     }
@@ -333,7 +332,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: Is a player bound to this Villager?
      */
-    public boolean bS()
+    public boolean bW()
     {
         return tradingPlayer != null;
     }
@@ -345,7 +344,7 @@ public class BalancedVillager extends EntityVillager
     {
         merchantrecipe.f(); //increments offer uses
         a_ = -o();
-        makeSound("mob.villager.yes", aW(), aX());
+        makeSound("mob.villager.yes", aZ(), ba());
         if( (merchantrecipe.a((MerchantRecipe)mrList.get(mrList.size() - 1)) || newForAnyTrade) && (random.nextInt(100) < newProbability) ) //Does this offer equal the last offer on the list?
         {
             offerUpdateTicks = generationTicks; //set offer update ticks to n
@@ -365,9 +364,9 @@ public class BalancedVillager extends EntityVillager
         {
             a_ = -o();
             if(itemstack != null)
-                makeSound("mob.villager.yes", aW(), aX());
+                makeSound("mob.villager.yes", aZ(), ba());
             else
-                makeSound("mob.villager.no", aW(), aX());
+                makeSound("mob.villager.no", aZ(), ba());
         }
     }
 
@@ -388,7 +387,7 @@ public class BalancedVillager extends EntityVillager
         return groupdataentity;
     }
 
-    public void bT()
+    public void bX()
     {
         bz = true;
     }
@@ -400,7 +399,7 @@ public class BalancedVillager extends EntityVillager
         return entityvillager;
     }
 
-    public boolean bC()
+    public boolean bG()
     {
         return false;
     }
@@ -581,6 +580,8 @@ public class BalancedVillager extends EntityVillager
     @SuppressWarnings("unchecked")
     private void findOutdatedOffers() {
         if (i == null) return;
+        if (mrList == null || mrList.size() == 0) return;
+
         initialUpdateCheck = false;
         RebalanceVillagers.debugMsg("Checking for outdated offers in villager at: " + this.locX + "," + this.locY + "," + this.locZ);
 
