@@ -7,7 +7,7 @@ import com.hotmail.wolfiemario.rebalancevillagers.offers.CustomOffer;
 import com.hotmail.wolfiemario.rebalancevillagers.offers.PotentialOffersList;
 import com.hotmail.wolfiemario.rebalancevillagers.offers.SimpleOffer;
 
-import net.minecraft.server.v1_6_R2.*;
+import net.minecraft.server.v1_6_R3.*;
 
 public class BalancedVillager extends EntityVillager
     implements IMerchant, NPC
@@ -28,13 +28,13 @@ public class BalancedVillager extends EntityVillager
 
     }
 
-    protected void ay()
+    protected void az()
     {
-        super.ay();
+        super.az();
         getAttributeInstance(GenericAttributes.d).setValue(0.5D);
     }
 
-    public boolean be()
+    public boolean bf()
     {
         return true;
     }
@@ -43,7 +43,7 @@ public class BalancedVillager extends EntityVillager
      * (NMS) EntityVillager method: updateAITick()
      */
     @SuppressWarnings("unchecked")
-    protected void bj()
+    protected void bk()
     {
         if(--profession <= 0)     //standard behavior
         {
@@ -136,7 +136,7 @@ public class BalancedVillager extends EntityVillager
         // if we still have no active offer, activate at least one offer so we don't run dry...
         checkForInactiveOffersOnly(false);
         
-        super.bj();
+        super.bk();
     }
 
     /**
@@ -214,7 +214,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: hurt sound string
      */
-    protected String aN()
+    protected String aO()
     {
         return "mob.villager.hit";
     }
@@ -222,7 +222,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: death sound string
      */
-    protected String aO()
+    protected String aP()
     {
         return "mob.villager.death";
     }
@@ -344,7 +344,7 @@ public class BalancedVillager extends EntityVillager
     {
         merchantrecipe.f(); //increments offer uses
         a_ = -o();
-        makeSound("mob.villager.yes", aZ(), ba());
+        makeSound("mob.villager.yes", ba(), bb());
         if( (merchantrecipe.a((MerchantRecipe)mrList.get(mrList.size() - 1)) || newForAnyTrade) && (random.nextInt(100) < newProbability) ) //Does this offer equal the last offer on the list?
         {
             offerUpdateTicks = generationTicks; //set offer update ticks to n
@@ -364,9 +364,9 @@ public class BalancedVillager extends EntityVillager
         {
             a_ = -o();
             if(itemstack != null)
-                makeSound("mob.villager.yes", aZ(), ba());
+                makeSound("mob.villager.yes", ba(), bb());
             else
-                makeSound("mob.villager.no", aZ(), ba());
+                makeSound("mob.villager.no", ba(), bb());
         }
     }
 
