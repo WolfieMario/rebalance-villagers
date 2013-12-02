@@ -430,7 +430,7 @@ public class BalancedVillager extends EntityVillager
      * Attempts to generate the specified number of offers. Limited by the amount of unique offers this villager can actually generate.
      * @param numOffers - the number of offers to try generating
      */
-    private void generateNewOffers(int numOffers)  // q()
+    private void generateNewOffers(int numOffers)
     {
         MerchantRecipeList merchantrecipelist = new MerchantRecipeList();
         
