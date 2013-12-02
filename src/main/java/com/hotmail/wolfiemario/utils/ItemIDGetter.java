@@ -1,8 +1,8 @@
 package com.hotmail.wolfiemario.utils;
 
 import java.util.HashMap;
-import net.minecraft.server.v1_6_R3.Block;
-import net.minecraft.server.v1_6_R3.Item;
+import net.minecraft.server.v1_7_R1.Block;
+import net.minecraft.server.v1_7_R1.Item;
 
 /**
  * This utility class allows item and block IDs to be retrieved using the names specified for them in Minecraft's source code,

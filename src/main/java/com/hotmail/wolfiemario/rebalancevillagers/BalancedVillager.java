@@ -7,7 +7,7 @@ import com.hotmail.wolfiemario.rebalancevillagers.offers.CustomOffer;
 import com.hotmail.wolfiemario.rebalancevillagers.offers.PotentialOffersList;
 import com.hotmail.wolfiemario.rebalancevillagers.offers.SimpleOffer;
 
-import net.minecraft.server.v1_6_R3.*;
+import net.minecraft.server.v1_7_R1.*;
 
 public class BalancedVillager extends EntityVillager
     implements IMerchant, NPC
@@ -28,13 +28,13 @@ public class BalancedVillager extends EntityVillager
 
     }
 
-    protected void az()
+    protected void aD()
     {
-        super.az();
+        super.aD();
         getAttributeInstance(GenericAttributes.d).setValue(0.5D);
     }
 
-    public boolean bf()
+    public boolean bk()
     {
         return true;
     }
@@ -43,7 +43,7 @@ public class BalancedVillager extends EntityVillager
      * (NMS) EntityVillager method: updateAITick()
      */
     @SuppressWarnings("unchecked")
-    protected void bk()
+    protected void bp()
     {
         if(--profession <= 0)     //standard behavior
         {
@@ -52,11 +52,11 @@ public class BalancedVillager extends EntityVillager
             village = world.villages.getClosestVillage(MathHelper.floor(locX), MathHelper.floor(locY), MathHelper.floor(locZ), 32);
             if(village == null)
             {
-                bR(); //detatchHome
+                bV(); //detatchHome
             } else
             {
                 ChunkCoordinates chunkcoordinates = village.getCenter();
-                b(chunkcoordinates.x, chunkcoordinates.y, chunkcoordinates.z, (int)((float)village.getSize() * 0.6F));
+                a(chunkcoordinates.x, chunkcoordinates.y, chunkcoordinates.z, (int)((float)village.getSize() * 0.6F));
                 if(bz)
                 {
                     bz = false;
@@ -68,7 +68,7 @@ public class BalancedVillager extends EntityVillager
         // check for outdated offers if needed
         if (initialUpdateCheck) findOutdatedOffers();
         
-        if(!bW() && offerUpdateTicks > 0) // trading related behavior - bS == isTrading, bv == timeUntilReset
+        if(!ca() && offerUpdateTicks > 0) // trading related behavior - bS == isTrading, bv == timeUntilReset
         {
             offerUpdateTicks--;
             if(offerUpdateTicks <= 0) // timeUntilReset
@@ -136,7 +136,7 @@ public class BalancedVillager extends EntityVillager
         // if we still have no active offer, activate at least one offer so we don't run dry...
         checkForInactiveOffersOnly(false);
         
-        super.bk();
+        super.bp();
     }
 
     /**
@@ -145,8 +145,8 @@ public class BalancedVillager extends EntityVillager
     public boolean a(EntityHuman entityhuman)
     {
         ItemStack itemstack = entityhuman.inventory.getItemInHand();
-        boolean flag = itemstack != null && itemstack.id == Item.MONSTER_EGG.id;
-        if(!flag && isAlive() && (!bW() || allowMultivending) && (!isBaby() || canTradeChildren)) //alive, adult, and nobody else is trading
+        boolean flag = itemstack != null && itemstack.getItem() == Items.MONSTER_EGG;
+        if(!flag && isAlive() && (!ca() || allowMultivending) && (!isBaby() || canTradeChildren)) //alive, adult, and nobody else is trading
         {
             if(!world.isStatic)
             {
@@ -163,9 +163,9 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: entityInit()
      */
-    protected void a()
+    protected void c()
     {
-        super.a();
+        super.c();
     }
 
     /**
@@ -177,7 +177,7 @@ public class BalancedVillager extends EntityVillager
         nbttagcompound.setInt("Profession", getProfession());
         nbttagcompound.setInt("Riches", riches);
         if(mrList != null)
-            nbttagcompound.setCompound("Offers", mrList.a());
+            nbttagcompound.set("Offers", mrList.a());
     }
 
     public void a(NBTTagCompound nbttagcompound)
@@ -185,7 +185,7 @@ public class BalancedVillager extends EntityVillager
         super.a(nbttagcompound);
         setProfession(nbttagcompound.getInt("Profession"));
         riches = nbttagcompound.getInt("Riches");
-        if(nbttagcompound.hasKey("Offers"))
+        if(nbttagcompound.hasKeyOfType("Offers", 10))
         {
             NBTTagCompound nbttagcompound1 = nbttagcompound.getCompound("Offers");
             mrList = new MerchantRecipeList(nbttagcompound1);
@@ -203,9 +203,9 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: idle sound string
      */
-    protected String r()
+    protected String t()
     {
-        if(bW())
+        if(ca())
             return "mob.villager.haggle";
         else
             return "mob.villager.idle";
@@ -214,7 +214,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: hurt sound string
      */
-    protected String aO()
+    protected String aT()
     {
         return "mob.villager.hit";
     }
@@ -222,7 +222,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: death sound string
      */
-    protected String aP()
+    protected String aU()
     {
         return "mob.villager.death";
     }
@@ -240,7 +240,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: isMating()
      */
-    public boolean bU()
+    public boolean bY()
     {
         return br;
     }
@@ -264,7 +264,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: isPlaying()
      */
-    public boolean bV()
+    public boolean bZ()
     {
         return bs;
     }
@@ -283,7 +283,7 @@ public class BalancedVillager extends EntityVillager
                 byte byte0 = -1;
                 if(isBaby())
                     byte0 = -3;
-                village.a(((EntityHuman)entityliving).getName(), byte0);
+                village.a(entityliving.getName(), byte0);
                 if(isAlive())
                     world.broadcastEntityEffect(this, (byte)13);
             }
@@ -298,7 +298,7 @@ public class BalancedVillager extends EntityVillager
             if(entity != null)
             {
                 if(entity instanceof EntityHuman)
-                    village.a(((EntityHuman)entity).getName(), -2);
+                    village.a(entity.getName(), -2);
                 else
                 if(entity instanceof IMonster)
                     village.h();
@@ -324,7 +324,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: Returns the player bound to this Villager
      */
-    public EntityHuman m_()
+    public EntityHuman b()
     {
         return tradingPlayer;
     }
@@ -332,7 +332,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: Is a player bound to this Villager?
      */
-    public boolean bW()
+    public boolean ca()
     {
         return tradingPlayer != null;
     }
@@ -343,8 +343,8 @@ public class BalancedVillager extends EntityVillager
     public void a(MerchantRecipe merchantrecipe)
     {
         merchantrecipe.f(); //increments offer uses
-        a_ = -o();
-        makeSound("mob.villager.yes", ba(), bb());
+        a_ = -q();
+        makeSound("mob.villager.yes", bf(), bg());
         if( (merchantrecipe.a((MerchantRecipe)mrList.get(mrList.size() - 1)) || newForAnyTrade) && (random.nextInt(100) < newProbability) ) //Does this offer equal the last offer on the list?
         {
             offerUpdateTicks = generationTicks; //set offer update ticks to n
@@ -354,19 +354,19 @@ public class BalancedVillager extends EntityVillager
             else
                 by = null;
         }
-        if(merchantrecipe.getBuyItem1().id == currencyId)
+        if(merchantrecipe.getBuyItem1().getItem() == currencyItem)
             riches += merchantrecipe.getBuyItem1().count; //increment riches by amount of currency item.
     }
 
     public void a_(ItemStack itemstack)
     {
-        if(!world.isStatic && a_ > -o() + 20)
+        if(!world.isStatic && a_ > -q() + 20)
         {
-            a_ = -o();
+            a_ = -q();
             if(itemstack != null)
-                makeSound("mob.villager.yes", ba(), bb());
+                makeSound("mob.villager.yes", bf(), bg());
             else
-                makeSound("mob.villager.no", ba(), bb());
+                makeSound("mob.villager.no", bf(), bg());
         }
     }
 
@@ -387,7 +387,7 @@ public class BalancedVillager extends EntityVillager
         return groupdataentity;
     }
 
-    public void bX()
+    public void cb()
     {
         bz = true;
     }
@@ -399,7 +399,7 @@ public class BalancedVillager extends EntityVillager
         return entityvillager;
     }
 
-    public boolean bG()
+    public boolean bK()
     {
         return false;
     }
@@ -421,8 +421,8 @@ public class BalancedVillager extends EntityVillager
     private String by;
     private boolean bz;
 
-    private static HashMap<Integer, Tuple> buyValues = new HashMap<Integer, Tuple>(); // bP 
-    private static HashMap<Integer, Tuple> sellValues = new HashMap<Integer, Tuple>(); // bQ
+    private static HashMap<Item, Tuple> buyValues = new HashMap<Item, Tuple>(); // bP 
+    private static HashMap<Item, Tuple> sellValues = new HashMap<Item, Tuple>(); // bQ
 
     // MOD ADDITIONS
     
@@ -470,11 +470,11 @@ public class BalancedVillager extends EntityVillager
      * @param random
      * @return The MerchantRecipe built based on the parameters.
      */
-    private static MerchantRecipe getOffer(int id, HashMap<Integer, Tuple> valuesMap, Random random)
+    private static MerchantRecipe getOffer(Item item, HashMap<Item, Tuple> valuesMap, Random random)
     {
 
         
-        int value = offerValue(id, valuesMap, random);
+        int value = offerValue(item, valuesMap, random);
         
         //Don't allow zero of an item!
         if(value == 0) value = 1;
@@ -486,8 +486,8 @@ public class BalancedVillager extends EntityVillager
         ItemStack sell;
         
         //Depending on whether we're buying or selling, the input and output are swapped.
-        int input = buy ? id : currencyId;
-        int output = buy ? currencyId : id;
+        Item input = buy ? item : currencyItem;
+        Item output = buy ? currencyItem : item;
         
         if(value < 0)
         {
@@ -512,7 +512,9 @@ public class BalancedVillager extends EntityVillager
                 int numCompressed = (int) Math.floor(value/9.0);
                 numCompressed = Math.min(numCompressed, 64); //If we cap the blocks at 64, we guarantee amounts up to 640 are tradeable with this mechanic.
                 int numUncompressed = value - (numCompressed * 9);
-                buyA = new ItemStack(compressedForms.get(input), numCompressed, 0);
+                Object buyAO = compressedForms.get(input);
+                if (buyAO instanceof Item)  buyA = new ItemStack((Item)buyAO, numCompressed, 0);
+                else                        buyA = new ItemStack((Block)buyAO, numCompressed, 0);
                 buyB = new ItemStack(input, numUncompressed, 0);
                 sell = new ItemStack(output, 1, 0);
             }
@@ -520,9 +522,9 @@ public class BalancedVillager extends EntityVillager
         }
         
         NBTTagCompound nbttagcompound = new NBTTagCompound();
-        nbttagcompound.setCompound("buy", buyA.save(new NBTTagCompound("buy")));
-        nbttagcompound.setCompound("sell", sell.save(new NBTTagCompound("sell")));
-        if(buyB != null) nbttagcompound.setCompound("buyB", buyB.save(new NBTTagCompound("buyB")));
+        nbttagcompound.set("buy", buyA.save(new NBTTagCompound()));
+        nbttagcompound.set("sell", sell.save(new NBTTagCompound()));
+        if(buyB != null) nbttagcompound.set("buyB", buyB.save(new NBTTagCompound()));
         nbttagcompound.setInt("uses", 0);
         nbttagcompound.setInt("maxUses", maxUses(random));
         
@@ -537,9 +539,9 @@ public class BalancedVillager extends EntityVillager
      * @return 1 if the value could not be found, a positive number if the value represents the amount in the input slots of a MerchantRecipe,
      * or a negative number if the value represents the negation of the amount in the output slot of a MerchantRecipe. 
      */
-    private static int offerValue(int id, HashMap<Integer, Tuple> valuesMap, Random random)
+    private static int offerValue(Item item, HashMap<Item, Tuple> valuesMap, Random random)
     {
-        Tuple tuple = (Tuple)valuesMap.get(Integer.valueOf(id));
+        Tuple tuple = (Tuple)valuesMap.get(item);
         if(tuple == null)
             return 1;
         if(((Integer)tuple.a()).intValue() >= ((Integer)tuple.b()).intValue())
@@ -552,9 +554,9 @@ public class BalancedVillager extends EntityVillager
      * @param id - the id of the item or block to check
      * @return Whether or not the Smart Compression feature can compress this item or block.
      */
-    private static boolean isCompressible(int id)
+    private static boolean isCompressible(Item item)
     {
-        return compressedForms.containsKey(id);
+        return compressedForms.containsKey(item);
     }
     
     
@@ -614,9 +616,9 @@ public class BalancedVillager extends EntityVillager
     
     private boolean checkOffer(ItemStack buy1, ItemStack buy2, ItemStack buy3) {
         // if he sells things
-        if (buy1 != null && (buy1.id == currencyId || getUncompressed(buy1.id) == currencyId) && buy3 != null) {
+        if (buy1 != null && (buy1.getItem() == currencyItem || getUncompressed(buy1.getItem()) == currencyItem) && buy3 != null) {
 
-            Tuple tuple = (Tuple)sellValues.get(buy3.id);
+            Tuple tuple = (Tuple)sellValues.get(buy3.getItem());
             if (tuple == null) return false;
             
             int min = ((Integer)tuple.a()).intValue();
@@ -628,23 +630,23 @@ public class BalancedVillager extends EntityVillager
             max = Math.abs(max);
             
             if (neg) {
-                int amount = buy3.count * (isCompressed(buy3.id) ? 9 : 1);
+                int amount = buy3.count * (isCompressed(buy3.getItem()) ? 9 : 1);
 
                 RebalanceVillagers.debugMsg("--> Sell offer [" + min + " < " + amount + " < " + max + "]");
                 if (amount < max || amount > min) return false;
                 
             } else {
-                int amount = buy1.count * (isCompressed(buy1.id) ? 9 : 1);
-                if (buy2 != null) amount = amount + (buy2.count * (isCompressed(buy2.id) ? 9 : 1));
+                int amount = buy1.count * (isCompressed(buy1.getItem()) ? 9 : 1);
+                if (buy2 != null) amount = amount + (buy2.count * (isCompressed(buy2.getItem()) ? 9 : 1));
                 
                 RebalanceVillagers.debugMsg("+-> Sell offer [" + min + " < " + amount + " < " + max + "]");
                 if (amount < min || amount > max) return false;
             }
 
         // if he buys things
-        } else if (buy3 != null && (buy3.id == currencyId || getUncompressed(buy3.id) == currencyId) && buy1 != null){
+        } else if (buy3 != null && (buy3.getItem() == currencyItem || getUncompressed(buy3.getItem()) == currencyItem) && buy1 != null){
 
-            Tuple tuple = (Tuple)buyValues.get(buy1.id);
+            Tuple tuple = (Tuple)buyValues.get(buy1.getItem());
             if (tuple == null) return false;
             
             int min = ((Integer)tuple.a()).intValue();
@@ -656,14 +658,14 @@ public class BalancedVillager extends EntityVillager
             max = Math.abs(max);
             
             if (neg) {
-                int price = buy3.count * (isCompressed(buy3.id) ? 9 : 1);
+                int price = buy3.count * (isCompressed(buy3.getItem()) ? 9 : 1);
                 
                 RebalanceVillagers.debugMsg("--> Buy offer [" + min + " < " + price + " < " + max + "]");
                 if (price < max || price > min) return false;
                 
             } else {
-                int amount = buy1.count * (isCompressed(buy1.id) ? 9 : 1);
-                if (buy2 != null) amount = amount + (buy2.count * (isCompressed(buy2.id) ? 9 : 1));
+                int amount = buy1.count * (isCompressed(buy1.getItem()) ? 9 : 1);
+                if (buy2 != null) amount = amount + (buy2.count * (isCompressed(buy2.getItem()) ? 9 : 1));
                 
                 RebalanceVillagers.debugMsg("+-> Buy offer [" + min + " < " + amount + " < " + max + "]");
                 if (amount < min || amount > max) return false;
@@ -676,21 +678,21 @@ public class BalancedVillager extends EntityVillager
         return true;
     }
     
-    private int getUncompressed(Integer cID) {
-        if (compressedForms.containsValue(cID)) {
-            for (int key : compressedForms.keySet()) {
-                if (compressedForms.get(key) == cID) return key;
+    private Item getUncompressed(Object cItem) {
+        if (compressedForms.containsValue(cItem)) {
+            for (Item key : compressedForms.keySet()) {
+                if (compressedForms.get(key) == cItem) return key;
             }
         }
-        return -1;
+        return null;
     }
-    private boolean isCompressed(Integer cID) {
-        return getUncompressed(cID) != -1;
+    private boolean isCompressed(Object cItem) {
+        return getUncompressed(cItem) != null;
     }
 
-    private static HashMap<Integer, Integer> compressedForms;  // private static final Map 
+    private static HashMap<Item, Object> compressedForms;  // private static final Map 
     
-    private static int currencyId = Item.EMERALD.id;
+    private static Item currencyItem = Items.EMERALD;
     private static HashMap<Integer, PotentialOffersList> offersByProfession = new HashMap<Integer, PotentialOffersList>();
 
     
@@ -742,16 +744,16 @@ public class BalancedVillager extends EntityVillager
     public static void setAllowMultivending(boolean allow)  {   allowMultivending = allow;  }
     public static void setCanTradeChildren(boolean allow)   {   canTradeChildren = allow;   }
         
-    public static void setCurrencyItem(int id)              {   currencyId = id;            }
+    public static void setCurrencyItem(int id)              {   currencyItem = Item.d(id);            }
     public static void setOffersByProfession(HashMap<Integer, PotentialOffersList> offers)
     {
         offersByProfession = offers;
     }
-    public static void setBuyValues(HashMap<Integer, Tuple> buys)
+    public static void setBuyValues(HashMap<Item, Tuple> buys)
     {
         buyValues = buys;
     }
-    public static void setSellValues(HashMap<Integer, Tuple> sells)
+    public static void setSellValues(HashMap<Item, Tuple> sells)
     {
         sellValues = sells;
     }
@@ -768,13 +770,13 @@ public class BalancedVillager extends EntityVillager
         for(SimpleOffer buy: offers.getBuys())
         {
             if(offerOccurs(buy, random))
-                merchantrecipelist.add(getOffer(buy.getId(), buyValues, random));
+                merchantrecipelist.add(getOffer(buy.getItem(), buyValues, random));
         }
         
         for(SimpleOffer sell: offers.getSells())
         {
             if(offerOccurs(sell, random))
-                merchantrecipelist.add(getOffer(sell.getId(), sellValues, random));
+                merchantrecipelist.add(getOffer(sell.getItem(), sellValues, random));
         }
         
         for(CustomOffer other: offers.getOther())
@@ -883,7 +885,7 @@ public class BalancedVillager extends EntityVillager
     private void addDefaultRecipes() {
         MerchantRecipeList merchantrecipelist = new MerchantRecipeList();
         if(offersByProfession.containsKey(-1)) populateMerchantRecipeList(merchantrecipelist, offersByProfession.get(-1), random); //Attempt loading user-specified defaults.
-        if(merchantrecipelist.isEmpty()) merchantrecipelist.add(getOffer(Item.GOLD_INGOT.id, buyValues, random)); //If all else fails...
+        if(merchantrecipelist.isEmpty()) merchantrecipelist.add(getOffer(Items.GOLD_INGOT, buyValues, random)); //If all else fails...
         for(int l = 0; l < merchantrecipelist.size(); l++) mrList.a((MerchantRecipe)merchantrecipelist.get(l));
     }
     
@@ -891,12 +893,12 @@ public class BalancedVillager extends EntityVillager
     {
         // removed original put's
         //Sadly, can't include lapis because it would be considered equal to all dyes.
-        compressedForms = new HashMap<Integer, Integer>();
-        compressedForms.put(Item.EMERALD.id, Block.EMERALD_BLOCK.id);
-        compressedForms.put(Item.GOLD_INGOT.id, Block.GOLD_BLOCK.id);
-        compressedForms.put(Item.GOLD_NUGGET.id, Item.GOLD_INGOT.id);
-        compressedForms.put(Item.DIAMOND.id, Block.DIAMOND_BLOCK.id);
-        compressedForms.put(Item.IRON_INGOT.id, Block.IRON_BLOCK.id);
+        compressedForms = new HashMap<Item, Object>();
+        compressedForms.put(Items.EMERALD, Blocks.EMERALD_BLOCK);
+        compressedForms.put(Items.GOLD_INGOT, Blocks.GOLD_BLOCK);
+        compressedForms.put(Items.GOLD_NUGGET, Items.GOLD_INGOT);
+        compressedForms.put(Items.DIAMOND, Blocks.DIAMOND_BLOCK);
+        compressedForms.put(Items.IRON_INGOT, Blocks.IRON_BLOCK);
         // MOD END
     }
     
