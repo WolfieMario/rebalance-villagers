@@ -6,11 +6,6 @@ env:
     - SONATYPE_USERNAME=deployment
     - secure: "K1jEdbVkQdzk/H1TQFPI5zCMsRzo7nSmRjIdHwSR36zH0u0Wh7Dx+XN7KM3z\nGbDw5IEGI26Q5S0pURGWoC9teH2rWtSca2xAnG+tCZ5utM2mN23aJs2TZcya\nOAQ+ZD8OAuOGAQelihoq0Xfsab5FcH5o4jKExz7hWT2ZedjcKlY="
     
-after_success:
-- wget -c http://ftp.unicamp.br/pub/apache/maven/maven-3/3.1.0/binaries/apache-maven-3.1.0-bin.tar.gz
-  && mkdir maven && tar xzvf apache-maven-3.1.0-bin.tar.gz -C maven/
-- git clone -b maven `git config --get remote.origin.url` target/maven
-
 after_script:
   - python .mvnSettings.py
-  - maven/apache-maven-3.1.0/bin/mvn clean deploy --settings ~/.m2/mySettings.xml
+  - mvn clean deploy --settings ~/.m2/mySettings.xml
