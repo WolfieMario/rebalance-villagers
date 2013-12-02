@@ -141,13 +141,13 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
         Entity entity = event.getEntity();
         EntityType entityType = event.getEntityType();
 
-        net.minecraft.server.v1_7_R1.World mcWorld = ((CraftWorld) entity
+        final net.minecraft.server.v1_7_R1.World mcWorld = ((CraftWorld) entity
                 .getWorld()).getHandle();
         net.minecraft.server.v1_7_R1.Entity mcEntity = (((CraftEntity) entity)
                 .getHandle());
 
         if (entityType == EntityType.VILLAGER) {
-            EntityVillager entityVil = (EntityVillager) mcEntity;
+            final EntityVillager entityVil = (EntityVillager) mcEntity;
 
             // This should only occur if convertVillager triggered this event.
             // This is unnecessary repetition; skip it.
@@ -175,7 +175,12 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
                 if (ShopkeepersHelper.shopkeepersActive()) {
                     Bukkit.getScheduler().runTaskAsynchronously(this, new ShopkeeperWaiter(entityVil, mcWorld, this));
                 } else {
-                    convertVillager(entityVil, mcWorld);
+                	Bukkit.getScheduler().runTask(this, new Runnable() {
+						@Override
+						public void run() {
+		                    convertVillager(entityVil, mcWorld);
+						}
+                	});
                 }
 
             }
