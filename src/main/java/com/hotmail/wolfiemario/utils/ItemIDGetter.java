@@ -1,6 +1,7 @@
 package com.hotmail.wolfiemario.utils;
 
 import java.util.HashMap;
+
 import net.minecraft.server.v1_7_R1.Block;
 import net.minecraft.server.v1_7_R1.Item;
 
@@ -11,31 +12,45 @@ import net.minecraft.server.v1_7_R1.Item;
  */
 public class ItemIDGetter
 {
-	private static HashMap<String, Integer> idMap;
+	private static HashMap<String, Item> blockItemMap;
 	
 	/**
 	 * Gets the item or block ID for the given item or block name.
 	 * @param name - the name of the desired item or block
 	 * @return The int value of the ID of this item or block, or -1 if no such item or block exists.
 	 */
-	public static int getID(String name)
+	public static Item getItemOrBlock(String name)
 	{
-		Integer id = idMap.get(name);
+	    Item item = blockItemMap.get(name);
 		
-		if(id == null)
-			id = -1;
-		
-		//Check if the string is itself an ID number.
-		try
-		{
-			id = Integer.parseInt(name);
+		if (item == null) {
+	        //Check if the string is itself an ID number.
+	        try
+	        {
+	            item = Item.d(Integer.parseInt(name));
+	        }
+	        catch(NumberFormatException e)
+	        {
+	            //Squelch exception because it simply means name wasn't a numeric ID.
+	        }		    
 		}
-		catch(NumberFormatException e)
-		{
-			//Squelch exception because it simply means name wasn't a numeric ID.
-		}
 		
-		return id;
+
+		if (item == null) {
+            //Check if the string is itself an ID number.
+            try
+            {
+                item = Item.getItemOf(Block.e(Integer.parseInt(name)));
+            }
+            catch(NumberFormatException e)
+            {
+                //Squelch exception because it simply means name wasn't a numeric ID.
+            }           
+        }
+		
+		
+		
+		return item;
 	}
 	
 	/**
@@ -43,9 +58,9 @@ public class ItemIDGetter
 	 * @param name - the desired item or block name
 	 * @param id - the id this name is meant to represent
 	 */
-	public static void registerName(String name, int id)
+	public static void registerName(String name, Item itemOrBlock)
 	{
-		idMap.put(name, id);
+	    blockItemMap.put(name, itemOrBlock);
 	}
 	
 	//Initializes the map of item/block names and ids
@@ -53,35 +68,35 @@ public class ItemIDGetter
 	{
 		try
 		{
-			idMap = new HashMap<String, Integer>();
+		    blockItemMap = new HashMap<String, Item>();
 			
 			//load block names
 			for(int i = 0; i < 4096; i++)
 			{
-				Block block = Block.byId[i];
+				Item block = Item.getItemOf(Block.e(i));
 				
-				if(block != null && block.a() != null)
+				if(block != null && block.getName() != null)
 				{
-					String name = block.a();
+					String name = block.getName();
 					String pureName = name.substring(5);
 					
-					idMap.put(name, i);
-					idMap.put(pureName, i);
+					blockItemMap.put(name, block);
+					blockItemMap.put(pureName, block);
 				}
 			}
 			
 			//load item names
 			for(int i = 0; i < 32000; i++)
 			{
-				Item item = Item.byId[i];
+				Item item = Item.d(i);
 				
 				if(item != null && item.getName() != null)
 				{
 					String name = item.getName();
 					String pureName = name.substring(5);
 					
-					idMap.put(name, i);
-					idMap.put(pureName, i);
+					blockItemMap.put(name, item);
+					blockItemMap.put(pureName, item);
 				}
 			}
 		}

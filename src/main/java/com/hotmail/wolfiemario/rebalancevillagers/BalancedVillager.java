@@ -512,9 +512,7 @@ public class BalancedVillager extends EntityVillager
                 int numCompressed = (int) Math.floor(value/9.0);
                 numCompressed = Math.min(numCompressed, 64); //If we cap the blocks at 64, we guarantee amounts up to 640 are tradeable with this mechanic.
                 int numUncompressed = value - (numCompressed * 9);
-                Object buyAO = compressedForms.get(input);
-                if (buyAO instanceof Item)  buyA = new ItemStack((Item)buyAO, numCompressed, 0);
-                else                        buyA = new ItemStack((Block)buyAO, numCompressed, 0);
+                buyA = new ItemStack(compressedForms.get(input), numCompressed, 0);
                 buyB = new ItemStack(input, numUncompressed, 0);
                 sell = new ItemStack(output, 1, 0);
             }
@@ -678,7 +676,7 @@ public class BalancedVillager extends EntityVillager
         return true;
     }
     
-    private Item getUncompressed(Object cItem) {
+    private Item getUncompressed(Item cItem) {
         if (compressedForms.containsValue(cItem)) {
             for (Item key : compressedForms.keySet()) {
                 if (compressedForms.get(key) == cItem) return key;
@@ -686,11 +684,11 @@ public class BalancedVillager extends EntityVillager
         }
         return null;
     }
-    private boolean isCompressed(Object cItem) {
+    private boolean isCompressed(Item cItem) {
         return getUncompressed(cItem) != null;
     }
 
-    private static HashMap<Item, Object> compressedForms;  // private static final Map 
+    private static HashMap<Item, Item> compressedForms;  // private static final Map 
     
     private static Item currencyItem = Items.EMERALD;
     private static HashMap<Integer, PotentialOffersList> offersByProfession = new HashMap<Integer, PotentialOffersList>();
@@ -744,7 +742,7 @@ public class BalancedVillager extends EntityVillager
     public static void setAllowMultivending(boolean allow)  {   allowMultivending = allow;  }
     public static void setCanTradeChildren(boolean allow)   {   canTradeChildren = allow;   }
         
-    public static void setCurrencyItem(int id)              {   currencyItem = Item.d(id);            }
+    public static void setCurrencyItem(Item item)              {   currencyItem = item;            }
     public static void setOffersByProfession(HashMap<Integer, PotentialOffersList> offers)
     {
         offersByProfession = offers;
@@ -893,12 +891,12 @@ public class BalancedVillager extends EntityVillager
     {
         // removed original put's
         //Sadly, can't include lapis because it would be considered equal to all dyes.
-        compressedForms = new HashMap<Item, Object>();
-        compressedForms.put(Items.EMERALD, Blocks.EMERALD_BLOCK);
-        compressedForms.put(Items.GOLD_INGOT, Blocks.GOLD_BLOCK);
+        compressedForms = new HashMap<Item, Item>();
+        compressedForms.put(Items.EMERALD, Item.getItemOf(Blocks.EMERALD_BLOCK));
+        compressedForms.put(Items.GOLD_INGOT, Item.getItemOf(Blocks.GOLD_BLOCK));
         compressedForms.put(Items.GOLD_NUGGET, Items.GOLD_INGOT);
-        compressedForms.put(Items.DIAMOND, Blocks.DIAMOND_BLOCK);
-        compressedForms.put(Items.IRON_INGOT, Blocks.IRON_BLOCK);
+        compressedForms.put(Items.DIAMOND, Item.getItemOf(Blocks.DIAMOND_BLOCK));
+        compressedForms.put(Items.IRON_INGOT, Item.getItemOf(Blocks.IRON_BLOCK));
         // MOD END
     }
     
