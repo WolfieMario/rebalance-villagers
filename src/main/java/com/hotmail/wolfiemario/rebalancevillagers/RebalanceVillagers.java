@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.minecraft.server.v1_7_R1.EntityTypes;
 import net.minecraft.server.v1_7_R1.EntityVillager;
 
 import org.bukkit.craftbukkit.v1_7_R1.CraftWorld;
@@ -91,9 +92,8 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
             // Replaces default villagers with new villagers
             // Thanks to Icyene for the help with this! Also
             // http://forums.bukkit.org/threads/tutorial-how-to-customize-the-behaviour-of-a-mob-or-entity.54547/
-            Method entityTypesA = net.minecraft.server.v1_7_R1.EntityTypes.class.getDeclaredMethod("a", Class.class, String.class, int.class);
-            entityTypesA.setAccessible(true);
-            entityTypesA.invoke(entityTypesA, BalancedVillager.class, "Villager", 120);
+      
+            CustomEntityType.registerEntities();
 
             // Checks if Shopkeepers is running
             try {
