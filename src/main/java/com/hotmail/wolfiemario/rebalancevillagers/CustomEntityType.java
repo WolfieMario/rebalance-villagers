@@ -14,7 +14,7 @@ import org.bukkit.entity.EntityType;
  
 public enum CustomEntityType {
  
-    VILLAGER("Villager", 54, EntityType.VILLAGER, EntityVillager.class, BalancedVillager.class);
+    VILLAGER("Villager", 120, EntityType.VILLAGER, EntityVillager.class, BalancedVillager.class);
  
     private String name;
     private int id;
