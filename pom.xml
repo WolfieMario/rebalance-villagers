@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.hotmail.wolfiemario.rebalancevillagers</groupId>
     <artifactId>RebalanceVillagers</artifactId>
-    <version>1.6.4</version>
+    <version>1.7.4</version>
     <name>RebalanceVillagers</name>
     <url>http://dev.bukkit.org/server-mods/rebalance-villagers/</url>
     <repositories>
@@ -50,7 +50,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.0</version>
+                <version>2.1</version>
                 <executions>
                       <execution>
                         <phase>package</phase>
@@ -85,7 +85,7 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>craftbukkit</artifactId>
-            <version>1.6.4-R2.0</version>
+            <version>1.7.2-R0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.mcstats.bukkit</groupId>
