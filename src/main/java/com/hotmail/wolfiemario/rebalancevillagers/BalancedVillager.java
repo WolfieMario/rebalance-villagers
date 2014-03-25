@@ -7,7 +7,7 @@ import com.hotmail.wolfiemario.rebalancevillagers.offers.CustomOffer;
 import com.hotmail.wolfiemario.rebalancevillagers.offers.PotentialOffersList;
 import com.hotmail.wolfiemario.rebalancevillagers.offers.SimpleOffer;
 
-import net.minecraft.server.v1_7_R1.*;
+import net.minecraft.server.v1_7_R2.*;
 
 public class BalancedVillager extends EntityVillager
     implements IMerchant, NPC
@@ -28,13 +28,13 @@ public class BalancedVillager extends EntityVillager
 
     }
 
-    protected void aD()
+    protected void aC()
     {
-        super.aD();
+        super.aC();
         getAttributeInstance(GenericAttributes.d).setValue(0.5D);
     }
 
-    public boolean bk()
+    public boolean bj()
     {
         return true;
     }
@@ -43,7 +43,7 @@ public class BalancedVillager extends EntityVillager
      * (NMS) EntityVillager method: updateAITick()
      */
     @SuppressWarnings("unchecked")
-    protected void bp()
+    protected void bo()
     {
         if(--profession <= 0)     //standard behavior
         {
@@ -52,7 +52,7 @@ public class BalancedVillager extends EntityVillager
             village = world.villages.getClosestVillage(MathHelper.floor(locX), MathHelper.floor(locY), MathHelper.floor(locZ), 32);
             if(village == null)
             {
-                bV(); //detatchHome
+                bX(); //detatchHome
             } else
             {
                 ChunkCoordinates chunkcoordinates = village.getCenter();
@@ -68,7 +68,7 @@ public class BalancedVillager extends EntityVillager
         // check for outdated offers if needed
         if (initialUpdateCheck) findOutdatedOffers();
         
-        if(!ca() && offerUpdateTicks > 0) // trading related behavior - bS == isTrading, bv == timeUntilReset
+        if(!cc() && offerUpdateTicks > 0) // trading related behavior - bS == isTrading, bv == timeUntilReset
         {
             offerUpdateTicks--;
             if(offerUpdateTicks <= 0) // timeUntilReset
@@ -136,7 +136,7 @@ public class BalancedVillager extends EntityVillager
         // if we still have no active offer, activate at least one offer so we don't run dry...
         checkForInactiveOffersOnly(false);
         
-        super.bp();
+        super.bo();
     }
 
     /**
@@ -146,7 +146,7 @@ public class BalancedVillager extends EntityVillager
     {
         ItemStack itemstack = entityhuman.inventory.getItemInHand();
         boolean flag = itemstack != null && itemstack.getItem() == Items.MONSTER_EGG;
-        if(!flag && isAlive() && (!ca() || allowMultivending) && (!isBaby() || canTradeChildren)) //alive, adult, and nobody else is trading
+        if(!flag && isAlive() && (!cc() || allowMultivending) && (!isBaby() || canTradeChildren)) //alive, adult, and nobody else is trading
         {
             if(!world.isStatic)
             {
@@ -205,7 +205,7 @@ public class BalancedVillager extends EntityVillager
      */
     protected String t()
     {
-        if(ca())
+        if(cc())
             return "mob.villager.haggle";
         else
             return "mob.villager.idle";
@@ -214,7 +214,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: hurt sound string
      */
-    protected String aT()
+    protected String aS()
     {
         return "mob.villager.hit";
     }
@@ -222,7 +222,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: death sound string
      */
-    protected String aU()
+    protected String aT()
     {
         return "mob.villager.death";
     }
@@ -240,7 +240,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: isMating()
      */
-    public boolean bY()
+    public boolean ca()
     {
         return br;
     }
@@ -264,7 +264,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: isPlaying()
      */
-    public boolean bZ()
+    public boolean cb()
     {
         return bs;
     }
@@ -332,7 +332,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: Is a player bound to this Villager?
      */
-    public boolean ca()
+    public boolean cc()
     {
         return tradingPlayer != null;
     }
@@ -344,7 +344,7 @@ public class BalancedVillager extends EntityVillager
     {
         merchantrecipe.f(); //increments offer uses
         a_ = -q();
-        makeSound("mob.villager.yes", bf(), bg());
+        makeSound("mob.villager.yes", be(), bf());
         if( (merchantrecipe.a((MerchantRecipe)mrList.get(mrList.size() - 1)) || newForAnyTrade) && (random.nextInt(100) < newProbability) ) //Does this offer equal the last offer on the list?
         {
             offerUpdateTicks = generationTicks; //set offer update ticks to n
@@ -364,9 +364,9 @@ public class BalancedVillager extends EntityVillager
         {
             a_ = -q();
             if(itemstack != null)
-                makeSound("mob.villager.yes", bf(), bg());
+                makeSound("mob.villager.yes", be(), bf());
             else
-                makeSound("mob.villager.no", bf(), bg());
+                makeSound("mob.villager.no", be(), bf());
         }
     }
 
@@ -387,7 +387,7 @@ public class BalancedVillager extends EntityVillager
         return groupdataentity;
     }
 
-    public void cb()
+    public void cd()
     {
         bz = true;
     }
@@ -399,7 +399,7 @@ public class BalancedVillager extends EntityVillager
         return entityvillager;
     }
 
-    public boolean bK()
+    public boolean bM()
     {
         return false;
     }
