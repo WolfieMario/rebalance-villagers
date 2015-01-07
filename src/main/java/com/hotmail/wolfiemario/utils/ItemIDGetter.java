@@ -2,8 +2,8 @@ package com.hotmail.wolfiemario.utils;
 
 import java.util.HashMap;
 
-import net.minecraft.server.v1_7_R2.Block;
-import net.minecraft.server.v1_7_R2.Item;
+import net.minecraft.server.v1_8_R1.Block;
+import net.minecraft.server.v1_8_R1.Item;
 
 /**
  * This utility class allows item and block IDs to be retrieved using the names specified for them in Minecraft's source code,
@@ -27,7 +27,7 @@ public class ItemIDGetter
 	        //Check if the string is itself an ID number.
 	        try
 	        {
-	            item = Item.d(Integer.parseInt(name));
+	            item = Item.getById(Integer.parseInt(name));
 	        }
 	        catch(NumberFormatException e)
 	        {
@@ -40,7 +40,7 @@ public class ItemIDGetter
             //Check if the string is itself an ID number.
             try
             {
-                item = Item.getItemOf(Block.e(Integer.parseInt(name)));
+                item = Item.getItemOf(Block.getById(Integer.parseInt(name)));
             }
             catch(NumberFormatException e)
             {
@@ -73,7 +73,7 @@ public class ItemIDGetter
 			//load block names
 			for(int i = 0; i < 4096; i++)
 			{
-				Item block = Item.getItemOf(Block.e(i));
+				Item block = Item.getItemOf(Block.getById(i));
 				
 				if(block != null && block.getName() != null)
 				{
@@ -88,7 +88,7 @@ public class ItemIDGetter
 			//load item names
 			for(int i = 0; i < 32000; i++)
 			{
-				Item item = Item.d(i);
+				Item item = Item.getById(i);
 				
 				if(item != null && item.getName() != null)
 				{

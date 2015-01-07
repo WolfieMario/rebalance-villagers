@@ -3,7 +3,7 @@ package com.hotmail.wolfiemario.rebalancevillagers;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
-import net.minecraft.server.v1_7_R2.EntityVillager;
+import net.minecraft.server.v1_8_R1.EntityVillager;
 
 import org.bukkit.Bukkit;
 
@@ -18,7 +18,7 @@ import org.bukkit.Bukkit;
  */
 public class ShopkeeperWaiter implements Runnable {
     private EntityVillager villager;
-    private net.minecraft.server.v1_7_R2.World mcWorld;
+    private net.minecraft.server.v1_8_R1.World mcWorld;
     private RebalanceVillagers plugin;
     
     static int shopkeeperCheckAttempts; // Number of times to check if a CUSTOM-spawned
@@ -29,7 +29,7 @@ public class ShopkeeperWaiter implements Runnable {
     // whether a Shopkeeper is registered.
 
 
-    public ShopkeeperWaiter(EntityVillager vil, net.minecraft.server.v1_7_R2.World world, RebalanceVillagers _plugin) {
+    public ShopkeeperWaiter(EntityVillager vil, net.minecraft.server.v1_8_R1.World world, RebalanceVillagers _plugin) {
         villager = vil;
         mcWorld = world;
         plugin = _plugin;

@@ -7,17 +7,21 @@
     <url>http://dev.bukkit.org/server-mods/rebalance-villagers/</url>
     <repositories>
         <repository>
-            <id>cna-public-repos</id>
+            <id>de.cube-nation.nexus.public</id>
             <url>http://nexus.cube-nation.de/content/groups/public/</url>
         </repository>
-    </repositories>
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+        </repository>
+     </repositories>
     <distributionManagement>
         <repository>
-            <id>cna-releases</id>
+            <id>de.cube-nation.nexus.release</id>
             <url>http://nexus.cube-nation.de/content/repositories/releases</url>
         </repository>
         <snapshotRepository>
-            <id>cna-snapshots</id>
+            <id>de.cube-nation.nexus.snapshot</id>
             <url>http://nexus.cube-nation.de/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
@@ -83,9 +87,15 @@
             <version>1.10</version>
         </dependency>
         <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>craftbukkit</artifactId>
-            <version>1.7.5-R0.1-SNAPSHOT</version>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.8-R0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.8-R0.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.mcstats.bukkit</groupId>

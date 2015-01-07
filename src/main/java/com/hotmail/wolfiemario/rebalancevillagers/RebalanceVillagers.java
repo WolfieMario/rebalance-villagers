@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.minecraft.server.v1_7_R2.EntityTypes;
-import net.minecraft.server.v1_7_R2.EntityVillager;
+import net.minecraft.server.v1_8_R1.EntityTypes;
+import net.minecraft.server.v1_8_R1.EntityVillager;
 
-import org.bukkit.craftbukkit.v1_7_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_7_R2.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_8_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R1.entity.CraftEntity;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -141,9 +141,9 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
         Entity entity = event.getEntity();
         EntityType entityType = event.getEntityType();
 
-        final net.minecraft.server.v1_7_R2.World mcWorld = ((CraftWorld) entity
+        final net.minecraft.server.v1_8_R1.World mcWorld = ((CraftWorld) entity
                 .getWorld()).getHandle();
-        net.minecraft.server.v1_7_R2.Entity mcEntity = (((CraftEntity) entity)
+        net.minecraft.server.v1_8_R1.Entity mcEntity = (((CraftEntity) entity)
                 .getHandle());
 
         if (entityType == EntityType.VILLAGER) {
@@ -210,7 +210,7 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
             Collection<Villager> villagerList = world
                     .getEntitiesByClass(Villager.class);
 
-            net.minecraft.server.v1_7_R2.World mcWorld = ((CraftWorld) world)
+            net.minecraft.server.v1_8_R1.World mcWorld = ((CraftWorld) world)
                     .getHandle();
 
             for (Villager vil : villagerList) {
@@ -230,7 +230,7 @@ public class RebalanceVillagers extends JavaPlugin implements Listener {
      * have a different unique ID.
      */
     public void convertVillager(EntityVillager vil,
-            net.minecraft.server.v1_7_R2.World mcWorld) {
+            net.minecraft.server.v1_8_R1.World mcWorld) {
         Location location = vil.getBukkitEntity().getLocation();
 
         BalancedVillager balancedVil = new BalancedVillager(vil, true);
