@@ -71,7 +71,7 @@ public enum CustomEntityType {
                 break;
  
             // This changed names from J, K, L and M.
-            for (String field : new String[] { "as", "at", "au", "av" })
+            for (String field : new String[] { "aw", "at", "au", "av" })
                 try {
                     Field list = BiomeBase.class.getDeclaredField(field);
                     list.setAccessible(true);
@@ -129,7 +129,7 @@ public enum CustomEntityType {
                 break;
  
             // The list fields changed names but update the meta regardless.
-            for (String field : new String[] { "as", "at", "au", "av" })
+            for (String field : new String[] { "aw", "at", "au", "av" })
                 try {
                     Field list = BiomeBase.class.getDeclaredField(field);
                     list.setAccessible(true);
