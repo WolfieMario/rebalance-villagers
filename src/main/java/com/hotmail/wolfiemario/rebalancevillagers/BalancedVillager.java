@@ -7,12 +7,167 @@ import com.hotmail.wolfiemario.rebalancevillagers.offers.CustomOffer;
 import com.hotmail.wolfiemario.rebalancevillagers.offers.PotentialOffersList;
 import com.hotmail.wolfiemario.rebalancevillagers.offers.SimpleOffer;
 
-import net.minecraft.server.v1_8_R1.*;
-import org.bukkit.craftbukkit.v1_8_R1.entity.CraftVillager;
+import net.minecraft.server.v1_8_R2.*;
+import org.bukkit.craftbukkit.v1_8_R2.entity.CraftVillager;
 
 public class BalancedVillager extends EntityVillager
-    implements IMerchant, NPC
+    implements NPC, IMerchant
 {
+    static interface IMerchantRecipeOption
+    {
+
+        public abstract void a(MerchantRecipeList merchantrecipelist, Random random);
+    }
+
+    static class MerchantOptionRandomRange extends Tuple
+    {
+
+        public int a(Random random)
+        {
+            return ((Integer)a()).intValue() < ((Integer)b()).intValue() ? ((Integer)a()).intValue() + random.nextInt((((Integer)b()).intValue() - ((Integer)a()).intValue()) + 1) : ((Integer)a()).intValue();
+        }
+
+        public MerchantOptionRandomRange(int i, int j)
+        {
+            super(Integer.valueOf(i), Integer.valueOf(j));
+        }
+    }
+
+    static class MerchantRecipeOptionBook
+        implements IMerchantRecipeOption
+    {
+
+        public void a(MerchantRecipeList merchantrecipelist, Random random)
+        {
+            Enchantment enchantment = Enchantment.b[random.nextInt(Enchantment.b.length)];
+            int i = MathHelper.nextInt(random, enchantment.getStartLevel(), enchantment.getMaxLevel());
+            ItemStack itemstack = Items.ENCHANTED_BOOK.a(new WeightedRandomEnchant(enchantment, i));
+            int j = 2 + random.nextInt(5 + i * 10) + 3 * i;
+            if(j > 64)
+                j = 64;
+            merchantrecipelist.add(new MerchantRecipe(new ItemStack(Items.BOOK), new ItemStack(Items.EMERALD, j), itemstack));
+        }
+
+        public MerchantRecipeOptionBook()
+        {
+        }
+    }
+
+    static class MerchantRecipeOptionBuy
+        implements IMerchantRecipeOption
+    {
+
+        public void a(MerchantRecipeList merchantrecipelist, Random random)
+        {
+            int i = 1;
+            if(b != null)
+                i = b.a(random);
+            merchantrecipelist.add(new MerchantRecipe(new ItemStack(a, i, 0), Items.EMERALD));
+        }
+
+        public Item a;
+        public MerchantOptionRandomRange b;
+
+        public MerchantRecipeOptionBuy(Item item, MerchantOptionRandomRange entityvillager_merchantoptionrandomrange)
+        {
+            a = item;
+            b = entityvillager_merchantoptionrandomrange;
+        }
+    }
+
+    static class MerchantRecipeOptionEnchant
+        implements IMerchantRecipeOption
+    {
+
+        public void a(MerchantRecipeList merchantrecipelist, Random random)
+        {
+            int i = 1;
+            if(b != null)
+                i = b.a(random);
+            ItemStack itemstack = new ItemStack(Items.EMERALD, i, 0);
+            ItemStack itemstack1 = new ItemStack(a.getItem(), 1, a.getData());
+            itemstack1 = EnchantmentManager.a(random, itemstack1, 5 + random.nextInt(15));
+            merchantrecipelist.add(new MerchantRecipe(itemstack, itemstack1));
+        }
+
+        public ItemStack a;
+        public MerchantOptionRandomRange b;
+
+        public MerchantRecipeOptionEnchant(Item item, MerchantOptionRandomRange entityvillager_merchantoptionrandomrange)
+        {
+            a = new ItemStack(item);
+            b = entityvillager_merchantoptionrandomrange;
+        }
+    }
+
+    static class MerchantRecipeOptionProcess
+        implements IMerchantRecipeOption
+    {
+
+        public void a(MerchantRecipeList merchantrecipelist, Random random)
+        {
+            int i = 1;
+            if(b != null)
+                i = b.a(random);
+            int j = 1;
+            if(d != null)
+                j = d.a(random);
+            merchantrecipelist.add(new MerchantRecipe(new ItemStack(a.getItem(), i, a.getData()), new ItemStack(Items.EMERALD), new ItemStack(c.getItem(), j, c.getData())));
+        }
+
+        public ItemStack a;
+        public MerchantOptionRandomRange b;
+        public ItemStack c;
+        public MerchantOptionRandomRange d;
+
+        public MerchantRecipeOptionProcess(Item item, MerchantOptionRandomRange entityvillager_merchantoptionrandomrange, Item item1, MerchantOptionRandomRange entityvillager_merchantoptionrandomrange1)
+        {
+            a = new ItemStack(item);
+            b = entityvillager_merchantoptionrandomrange;
+            c = new ItemStack(item1);
+            d = entityvillager_merchantoptionrandomrange1;
+        }
+    }
+
+    static class MerchantRecipeOptionSell
+        implements IMerchantRecipeOption
+    {
+
+        public void a(MerchantRecipeList merchantrecipelist, Random random)
+        {
+            int i = 1;
+            if(b != null)
+                i = b.a(random);
+            ItemStack itemstack;
+            ItemStack itemstack1;
+            if(i < 0)
+            {
+                itemstack = new ItemStack(Items.EMERALD, 1, 0);
+                itemstack1 = new ItemStack(a.getItem(), -i, a.getData());
+            } else
+            {
+                itemstack = new ItemStack(Items.EMERALD, i, 0);
+                itemstack1 = new ItemStack(a.getItem(), 1, a.getData());
+            }
+            merchantrecipelist.add(new MerchantRecipe(itemstack, itemstack1));
+        }
+
+        public ItemStack a;
+        public MerchantOptionRandomRange b;
+
+        public MerchantRecipeOptionSell(Item item, MerchantOptionRandomRange entityvillager_merchantoptionrandomrange)
+        {
+            a = new ItemStack(item);
+            b = entityvillager_merchantoptionrandomrange;
+        }
+
+        public MerchantRecipeOptionSell(ItemStack itemstack, MerchantOptionRandomRange entityvillager_merchantoptionrandomrange)
+        {
+            a = itemstack;
+            b = entityvillager_merchantoptionrandomrange;
+        }
+    }
+
 
     public BalancedVillager(World world)
     {
@@ -24,23 +179,23 @@ public class BalancedVillager extends EntityVillager
         super(world);
         inventory = new InventorySubcontainer("Items", false, 8, (CraftVillager)getBukkitEntity());
         setProfession(i);
-        a(0.6F, 1.8F);
+        setSize(0.6F, 1.8F);
         ((Navigation)getNavigation()).b(true);
         ((Navigation)getNavigation()).a(true);
         j(true);
     }
     
-    private void ct()
+    private void cv()
     {
-        if(!by)
+        if(!bA)
         {
-            by = true;
+            bA = true;
         }
     }
 
-    protected void aW()
+    protected void initAttributes()
     {
-        super.aW();
+        super.initAttributes();
         getAttributeInstance(GenericAttributes.d).setValue(0.5D);
     }
 
@@ -58,14 +213,14 @@ public class BalancedVillager extends EntityVillager
             village = world.ae().getClosestVillage(blockposition, 32);
             if(village == null)
             {
-                ch(); //detatchHome
+                cj(); //detatchHome
             } else
             {
                 BlockPosition blockposition1 = village.a();
                 a(blockposition1, (int)((float)village.b() * 1.0F));
-                if(bx)
+                if(bz)
                 {
-                    bx = false;
+                    bz = false;
                     village.b(5);
                 }
             }
@@ -74,7 +229,7 @@ public class BalancedVillager extends EntityVillager
         // check for outdated offers if needed
         if (initialUpdateCheck) findOutdatedOffers();
         
-        if(!cm() && offerUpdateTicks > 0) // trading related behavior - bS == isTrading, bv == timeUntilReset
+        if(!co() && offerUpdateTicks > 0) // trading related behavior - bS == isTrading, bv == timeUntilReset
         {
             offerUpdateTicks--;
             if(offerUpdateTicks <= 0) // timeUntilReset
@@ -84,7 +239,7 @@ public class BalancedVillager extends EntityVillager
                     if(village != null && bu != null)
                     {
                         world.broadcastEntityEffect(this, (byte)14);
-                        village.a(bu, 1);
+                        village.a(bw, 1);
                     }
                     generateNewOffers(newOfferCount); //Add new offer(s)
                     
@@ -152,9 +307,9 @@ public class BalancedVillager extends EntityVillager
     {
         ItemStack itemstack = entityhuman.inventory.getItemInHand();
         boolean flag = itemstack != null && itemstack.getItem() == Items.SPAWN_EGG;
-        if(!flag && isAlive() && (!cm() || allowMultivending) && (!isBaby() || canTradeChildren)) //alive, adult, and nobody else is trading
+        if(!flag && isAlive() && (!co() || allowMultivending) && (!isBaby() || canTradeChildren)) //alive, adult, and nobody else is trading
         {
-            if(!world.isStatic && (mrList == null || mrList.size() > 0))
+            if(!world.isClientSide && (mrList == null || mrList.size() > 0))
             {
                 a_(entityhuman);
                 entityhuman.openTrade(this);
@@ -183,9 +338,9 @@ public class BalancedVillager extends EntityVillager
         super.b(nbttagcompound);
         nbttagcompound.setInt("Profession", getProfession());
         nbttagcompound.setInt("Riches", riches);
-        nbttagcompound.setInt("Career", bv);
-        nbttagcompound.setInt("CareerLevel", bw);
-        nbttagcompound.setBoolean("Willing", bs);
+        nbttagcompound.setInt("Career", bx);
+        nbttagcompound.setInt("CareerLevel", by);
+        nbttagcompound.setBoolean("Willing", bu);
         if(mrList != null)
             nbttagcompound.set("Offers", mrList.a());
         NBTTagList nbttaglist = new NBTTagList();
@@ -204,9 +359,9 @@ public class BalancedVillager extends EntityVillager
         super.a(nbttagcompound);
         setProfession(nbttagcompound.getInt("Profession"));
         riches = nbttagcompound.getInt("Riches");
-        bv = nbttagcompound.getInt("Career");
-        bw = nbttagcompound.getInt("CareerLevel");
-        bs = nbttagcompound.getBoolean("Willing");
+        bx = nbttagcompound.getInt("Career");
+        by = nbttagcompound.getInt("CareerLevel");
+        bu = nbttagcompound.getBoolean("Willing");
         if(nbttagcompound.hasKeyOfType("Offers", 10))
         {
             NBTTagCompound nbttagcompound1 = nbttagcompound.getCompound("Offers");
@@ -221,7 +376,7 @@ public class BalancedVillager extends EntityVillager
         }
 
         j(true);
-        ct();
+        cv();
     }
 
     /**
@@ -237,13 +392,13 @@ public class BalancedVillager extends EntityVillager
      */
     protected String z()
     {
-        return cm() ? "mob.villager.haggle" : "mob.villager.idle";
+        return co() ? "mob.villager.haggle" : "mob.villager.idle";
     }
 
     /**
      * (NMS) EntityVillager method: hurt sound string
      */
-    protected String bn()
+    protected String bo()
     {
         return "mob.villager.hit";
     }
@@ -251,7 +406,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: death sound string
      */
-    protected String bo()
+    protected String bp()
     {
         return "mob.villager.death";
     }
@@ -269,9 +424,9 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: isMating()
      */
-    public boolean ck()
+    public boolean cm()
     {
-        return bm;
+        return bo;
     }
 
     /**
@@ -279,7 +434,7 @@ public class BalancedVillager extends EntityVillager
      */
     public void l(boolean flag)
     {
-        bm = flag;
+        bo = flag;
     }
 
     /**
@@ -287,15 +442,15 @@ public class BalancedVillager extends EntityVillager
      */
     public void m(boolean flag)
     {
-        bn = flag;
+        bp = flag;
     }
 
     /**
      * (NMS) EntityVillager method: isPlaying()
      */
-    public boolean cl()
+    public boolean cn()
     {
-        return bn;
+        return bp;
     }
 
     /**
@@ -352,7 +507,7 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: Returns the player bound to this Villager
      */
-    public EntityHuman u_()
+    public EntityHuman v_()
     {
         return tradingPlayer;
     }
@@ -360,14 +515,14 @@ public class BalancedVillager extends EntityVillager
     /**
      * (NMS) EntityVillager method: Is a player bound to this Villager?
      */
-    public boolean cm()
+    public boolean co()
     {
         return tradingPlayer != null;
     }
     
     public boolean n(boolean flag)
     {
-        if(!bs && flag && cp())
+        if(!bu && flag && cr())
         {
             boolean flag1 = false;
             for(int i = 0; i < inventory.getSize(); i++)
@@ -387,17 +542,17 @@ public class BalancedVillager extends EntityVillager
                 if(!flag1)
                     continue;
                 world.broadcastEntityEffect(this, (byte)18);
-                bs = true;
+                bu = true;
                 break;
             }
 
         }
-        return bs;
+        return bu;
     }
 
     public void o(boolean flag)
     {
-        bs = flag;
+        bu = flag;
     }
 
     /**
@@ -407,17 +562,17 @@ public class BalancedVillager extends EntityVillager
     {
         merchantrecipe.g(); //increments offer uses
         a_ = -w();
-        makeSound("mob.villager.yes", bA(), bB());
+        makeSound("mob.villager.yes", bB(), bC());
         int i = 3 + random.nextInt(4);
         if( (merchantrecipe.e() == 1 || random.nextInt(5) == 0 || newForAnyTrade) && (random.nextInt(100) < newProbability) ) //Does this offer equal the last offer on the list?
         {
             offerUpdateTicks = generationTicks; //set offer update ticks to n
             needsInitilization = true;
-            bs = true;
+            bu = true;
             if(tradingPlayer != null)
-                bu = tradingPlayer.getName();
+                bw = tradingPlayer.getName();
             else
-                bu = null;
+                bw = null;
             i += 5;
         }
         if(merchantrecipe.getBuyItem1().getItem() == currencyItem)
@@ -428,13 +583,13 @@ public class BalancedVillager extends EntityVillager
 
     public void a_(ItemStack itemstack)
     {
-        if(!world.isStatic && a_ > -w() + 20)
+        if(!world.isClientSide && a_ > -w() + 20)
         {
             a_ = -w();
             if(itemstack != null)
-                makeSound("mob.villager.yes", bA(), bB());
+                makeSound("mob.villager.yes", bB(), bC());
             else
-                makeSound("mob.villager.no", bA(), bB());
+                makeSound("mob.villager.no", bB(), bC());
         }
     }
 
@@ -456,9 +611,9 @@ public class BalancedVillager extends EntityVillager
         return groupdataentity;
     }
 
-    public void cn()
+    public void cp()
     {
-        bx = true;
+        bz = true;
     }
 
     public EntityVillager b(EntityAgeable entityageable)
@@ -468,7 +623,7 @@ public class BalancedVillager extends EntityVillager
         return entityvillager;
     }
 
-    public boolean ca()
+    public boolean cb()
     {
         return false;
     }
@@ -484,20 +639,20 @@ public class BalancedVillager extends EntityVillager
     }
 
     private int profession;
-    private boolean bm;
-    private boolean bn;
+    private boolean bo;
+    private boolean bp;
     Village village;
     private EntityHuman tradingPlayer;
     private MerchantRecipeList mrList;
     private int offerUpdateTicks;
     private boolean needsInitilization;
-    private boolean bs;
+    private boolean bu;
     private int riches;
-    private String bu;
-    private int bv;
-    private int bw;
-    private boolean bx;
-    private boolean by;
+    private String bw;
+    private int bx;
+    private int by;
+    private boolean bz;
+    private boolean bA;
 
     private static HashMap<Item, Tuple> buyValues = new HashMap<Item, Tuple>(); // bP 
     private static HashMap<Item, Tuple> sellValues = new HashMap<Item, Tuple>(); // bQ
