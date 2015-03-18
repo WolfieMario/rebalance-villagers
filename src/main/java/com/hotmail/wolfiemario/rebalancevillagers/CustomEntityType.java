@@ -4,8 +4,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
  
-import net.minecraft.server.v1_8_R2.BiomeBase;
-import net.minecraft.server.v1_8_R2.BiomeMeta;
+import net.minecraft.server.v1_8_R2.BiomeBaseSub;
 import net.minecraft.server.v1_8_R2.EntityInsentient;
 import net.minecraft.server.v1_8_R2.EntityTypes;
 import net.minecraft.server.v1_8_R2.EntityVillager;
@@ -57,26 +56,18 @@ public enum CustomEntityType {
     public static void registerEntities() {
         for (CustomEntityType entity : values())
             a(entity.getCustomClass(), entity.getName(), entity.getID());
- 
-        // BiomeBase#biomes became private.
-        BiomeBase[] biomes;
-        try {
-            biomes = (BiomeBase[]) getPrivateStatic(BiomeBase.class, "biomes");
-        } catch (Exception exc) {
-            // Unable to fetch.
-            return;
-        }
-        for (BiomeBase biomeBase : biomes) {
+        
+        for (BiomeBaseSub biomeBase : BiomeBaseSub.getBiomes()) {
             if (biomeBase == null)
                 break;
  
             // This changed names from J, K, L and M.
             for (String field : new String[] { "aw", "at", "au", "av" })
                 try {
-                    Field list = BiomeBase.class.getDeclaredField(field);
+                    Field list = BiomeBaseSub.class.getDeclaredField(field);
                     list.setAccessible(true);
                     @SuppressWarnings("unchecked")
-                    List<BiomeMeta> mobList = (List<BiomeMeta>) list.get(biomeBase);
+                    List<?> mobList = (List<?>) list.get(biomeBase);
  
                     // Write in our custom class.
                     for (BiomeMeta meta : mobList)
@@ -116,25 +107,17 @@ public enum CustomEntityType {
                 e.printStackTrace();
             }
  
-        // Biomes#biomes was made private so use reflection to get it.
-        BiomeBase[] biomes;
-        try {
-            biomes = (BiomeBase[]) getPrivateStatic(BiomeBase.class, "biomes");
-        } catch (Exception exc) {
-            // Unable to fetch.
-            return;
-        }
-        for (BiomeBase biomeBase : biomes) {
+        for (BiomeBaseSub biomeBase : BiomeBaseSub.getBiomes()) {
             if (biomeBase == null)
                 break;
  
             // The list fields changed names but update the meta regardless.
             for (String field : new String[] { "aw", "at", "au", "av" })
                 try {
-                    Field list = BiomeBase.class.getDeclaredField(field);
+                    Field list = BiomeBaseSub.class.getDeclaredField(field);
                     list.setAccessible(true);
                     @SuppressWarnings("unchecked")
-                    List<BiomeMeta> mobList = (List<BiomeMeta>) list.get(biomeBase);
+                    List<?> mobList = (List<?>) list.get(biomeBase);
  
                     // Make sure the NMS class is written back over our custom class.
                     for (BiomeMeta meta : mobList)
