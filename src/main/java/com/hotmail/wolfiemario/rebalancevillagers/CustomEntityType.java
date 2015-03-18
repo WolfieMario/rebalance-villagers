@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
  
-import net.minecraft.server.v1_8_R2.BiomeBaseSub;
+import net.minecraft.server.v1_8_R2.BiomeBase;
 import net.minecraft.server.v1_8_R2.EntityInsentient;
 import net.minecraft.server.v1_8_R2.EntityTypes;
 import net.minecraft.server.v1_8_R2.EntityVillager;
@@ -57,14 +57,14 @@ public enum CustomEntityType {
         for (CustomEntityType entity : values())
             a(entity.getCustomClass(), entity.getName(), entity.getID());
         
-        for (BiomeBaseSub biomeBase : BiomeBaseSub.getBiomes()) {
+        for (BiomeBase biomeBase : BiomeBase.getBiomes()) {
             if (biomeBase == null)
                 break;
  
             // This changed names from J, K, L and M.
             for (String field : new String[] { "aw", "at", "au", "av" })
                 try {
-                    Field list = BiomeBaseSub.class.getDeclaredField(field);
+                    Field list = BiomeBase.class.getDeclaredField(field);
                     list.setAccessible(true);
                     @SuppressWarnings("unchecked")
                     List<?> mobList = (List<?>) list.get(biomeBase);
@@ -107,14 +107,14 @@ public enum CustomEntityType {
                 e.printStackTrace();
             }
  
-        for (BiomeBaseSub biomeBase : BiomeBaseSub.getBiomes()) {
+        for (BiomeBase biomeBase : BiomeBase.getBiomes()) {
             if (biomeBase == null)
                 break;
  
             // The list fields changed names but update the meta regardless.
             for (String field : new String[] { "aw", "at", "au", "av" })
                 try {
-                    Field list = BiomeBaseSub.class.getDeclaredField(field);
+                    Field list = BiomeBase.class.getDeclaredField(field);
                     list.setAccessible(true);
                     @SuppressWarnings("unchecked")
                     List<?> mobList = (List<?>) list.get(biomeBase);
