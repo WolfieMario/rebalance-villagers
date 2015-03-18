@@ -1,6 +1,6 @@
 package com.hotmail.wolfiemario.rebalancevillagers.offers;
 
-import net.minecraft.server.v1_8_R1.Item;
+import net.minecraft.server.v1_8_R2.Item;
 
 /**
  * A SimpleOffer, like an AbstractOffer, represents a merchant offer's probability value. In addition, it represents
