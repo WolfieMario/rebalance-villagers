@@ -236,7 +236,7 @@ public class BalancedVillager extends EntityVillager
             {
                 if(needsInitilization) // == needsInitilization - were we adding a new offer?
                 {
-                    if(village != null && bu != null)
+                    if(village != null && bw != null)
                     {
                         world.broadcastEntityEffect(this, (byte)14);
                         village.a(bw, 1);
