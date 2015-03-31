@@ -3,7 +3,8 @@ package com.hotmail.wolfiemario.rebalancevillagers;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
- 
+
+
 import net.minecraft.server.v1_8_R2.BiomeBase;
 import net.minecraft.server.v1_8_R2.EntityInsentient;
 import net.minecraft.server.v1_8_R2.EntityTypes;
@@ -67,10 +68,10 @@ public enum CustomEntityType {
                     Field list = BiomeBase.class.getDeclaredField(field);
                     list.setAccessible(true);
                     @SuppressWarnings("unchecked")
-                    List<?> mobList = (List<?>) list.get(biomeBase);
+                    List<BiomeBase.BiomeMeta> mobList = (List<BiomeBase.BiomeMeta>) list.get(biomeBase);
  
                     // Write in our custom class.
-                    for (BiomeMeta meta : mobList)
+                    for (BiomeBase.BiomeMeta meta : mobList)
                         for (CustomEntityType entity : values())
                             if (entity.getNMSClass().equals(meta.b))
                                 meta.b = entity.getCustomClass();
@@ -117,10 +118,10 @@ public enum CustomEntityType {
                     Field list = BiomeBase.class.getDeclaredField(field);
                     list.setAccessible(true);
                     @SuppressWarnings("unchecked")
-                    List<?> mobList = (List<?>) list.get(biomeBase);
+                    List<BiomeBase.BiomeMeta> mobList = (List<BiomeBase.BiomeMeta>) list.get(biomeBase);
  
                     // Make sure the NMS class is written back over our custom class.
-                    for (BiomeMeta meta : mobList)
+                    for (BiomeBase.BiomeMeta meta : mobList)
                         for (CustomEntityType entity : values())
                             if (entity.getCustomClass().equals(meta.b))
                                 meta.b = entity.getNMSClass();
