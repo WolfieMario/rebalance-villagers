@@ -1,24 +1,18 @@
 package com.hotmail.wolfiemario.rebalancevillagers;
 
+import com.hotmail.wolfiemario.rebalancevillagers.offers.*;
+import com.hotmail.wolfiemario.utils.ItemIDGetter;
+import net.minecraft.server.v1_8_R3.Item;
+import net.minecraft.server.v1_8_R3.Items;
+import net.minecraft.server.v1_8_R3.Tuple;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
-
-import net.minecraft.server.v1_8_R2.Item;
-import net.minecraft.server.v1_8_R2.Items;
-import net.minecraft.server.v1_8_R2.Tuple;
-
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
-
-import com.hotmail.wolfiemario.rebalancevillagers.offers.CustomOffer;
-import com.hotmail.wolfiemario.rebalancevillagers.offers.ItemStackProducer;
-import com.hotmail.wolfiemario.rebalancevillagers.offers.ItemStackProducerFactory;
-import com.hotmail.wolfiemario.rebalancevillagers.offers.PotentialOffersList;
-import com.hotmail.wolfiemario.rebalancevillagers.offers.SimpleOffer;
-import com.hotmail.wolfiemario.utils.ItemIDGetter;
 
 /**
  * This class loads the config files of the Rebalance Villagers plugin.
@@ -313,7 +307,6 @@ public class ConfigLoader
 	/**
 	 * Returns whether or not the given id is greater than or equal to 0.
 	 * If it is not, a warning is issued, stating that the specified item/block name is unknown.
-	 * @param id - the id to check
 	 * @param name - the name of the item. Used for the warning message.
 	 * @param path - the path to the value. Used for the warning message.
 	 * @param postfix - this String is appended to the warning message

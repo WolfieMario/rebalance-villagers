@@ -1,11 +1,10 @@
 package com.hotmail.wolfiemario.rebalancevillagers;
 
+import net.minecraft.server.v1_8_R3.EntityVillager;
+import org.bukkit.Bukkit;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-
-import net.minecraft.server.v1_8_R2.EntityVillager;
-
-import org.bukkit.Bukkit;
 
 /**
  * An attempt to wait for a newly spawned Villager to be added to
@@ -18,7 +17,7 @@ import org.bukkit.Bukkit;
  */
 public class ShopkeeperWaiter implements Runnable {
     private EntityVillager villager;
-    private net.minecraft.server.v1_8_R2.World mcWorld;
+    private net.minecraft.server.v1_8_R3.World mcWorld;
     private RebalanceVillagers plugin;
     
     static int shopkeeperCheckAttempts; // Number of times to check if a CUSTOM-spawned
@@ -29,7 +28,7 @@ public class ShopkeeperWaiter implements Runnable {
     // whether a Shopkeeper is registered.
 
 
-    public ShopkeeperWaiter(EntityVillager vil, net.minecraft.server.v1_8_R2.World world, RebalanceVillagers _plugin) {
+    public ShopkeeperWaiter(EntityVillager vil, net.minecraft.server.v1_8_R3.World world, RebalanceVillagers _plugin) {
         villager = vil;
         mcWorld = world;
         plugin = _plugin;

@@ -1,16 +1,14 @@
 package com.hotmail.wolfiemario.rebalancevillagers;
 
+import net.minecraft.server.v1_8_R3.BiomeBase;
+import net.minecraft.server.v1_8_R3.EntityInsentient;
+import net.minecraft.server.v1_8_R3.EntityTypes;
+import net.minecraft.server.v1_8_R3.EntityVillager;
+import org.bukkit.entity.EntityType;
+
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
-
-
-import net.minecraft.server.v1_8_R2.BiomeBase;
-import net.minecraft.server.v1_8_R2.EntityInsentient;
-import net.minecraft.server.v1_8_R2.EntityTypes;
-import net.minecraft.server.v1_8_R2.EntityVillager;
- 
-import org.bukkit.entity.EntityType;
  
 public enum CustomEntityType {
  

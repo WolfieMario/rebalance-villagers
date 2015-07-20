@@ -1,20 +1,27 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.hotmail.wolfiemario.rebalancevillagers</groupId>
     <artifactId>RebalanceVillagers</artifactId>
-    <version>1.8.3</version>
+    <version>1.8.7~spigot187+1</version>
     <name>RebalanceVillagers</name>
     <url>http://dev.bukkit.org/server-mods/rebalance-villagers/</url>
+
     <repositories>
         <repository>
             <id>de.cube-nation.nexus.public</id>
             <url>http://nexus.cube-nation.de/content/groups/public/</url>
         </repository>
         <repository>
+            <id>shortbyte</id>
+            <url>http://repo.shortbyte.de/content/repositories/minecraft/</url>
+        </repository>
+        <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
-     </repositories>
+    </repositories>
+
     <distributionManagement>
         <repository>
             <id>de.cube-nation.nexus.release</id>
@@ -25,6 +32,7 @@
             <url>http://nexus.cube-nation.de/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
+
     <build>
         <defaultGoal>install</defaultGoal>
         <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
@@ -56,13 +64,13 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.1</version>
                 <executions>
-                      <execution>
+                    <execution>
                         <phase>package</phase>
                         <goals>
-                              <goal>shade</goal>
+                            <goal>shade</goal>
                         </goals>
                         <configuration>
-                              <artifactSet>
+                            <artifactSet>
                                 <includes>
                                     <include>org.mcstats.bukkit:metrics</include>
                                 </includes>
@@ -89,12 +97,12 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.8.3-R0.1-SNAPSHOT</version>
+            <version>1.8.7-R0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.8.3-R0.1</version>
+            <version>1.8.7</version>
         </dependency>
         <dependency>
             <groupId>org.mcstats.bukkit</groupId>
