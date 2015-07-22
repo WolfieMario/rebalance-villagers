@@ -64,6 +64,11 @@ general-trading:
     # The vanilla default is 200.
     particle-ticks: 200
     
+    # The number of ticks that the plugin should check if there are only inactive offers left.
+    # If so, at least the first offer will be activated again
+    # Setting this to 0 will disable this feature - keep in mind that you eventually get a villager with no active offers from time to time
+    dryrun-check-ticks: 100
+    
     # My failed attempt to allow multiple people to trade a villager at the same time. Instead, if it is set to true,
     # and a player is already in the trading GUI with a villager, and another player rightclicks the same villager, the
     # first player is kicked from the trading GUI (dropping any items they had put in the villager's slots), and the

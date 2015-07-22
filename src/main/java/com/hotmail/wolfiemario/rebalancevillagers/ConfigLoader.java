@@ -1,23 +1,18 @@
 package com.hotmail.wolfiemario.rebalancevillagers;
 
+import com.hotmail.wolfiemario.rebalancevillagers.offers.*;
+import com.hotmail.wolfiemario.utils.ItemIDGetter;
+import net.minecraft.server.v1_8_R3.Item;
+import net.minecraft.server.v1_8_R3.Items;
+import net.minecraft.server.v1_8_R3.Tuple;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
-
-import net.minecraft.server.Item;
-import net.minecraft.server.Tuple;
-
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
-
-import com.hotmail.wolfiemario.rebalancevillagers.offers.CustomOffer;
-import com.hotmail.wolfiemario.rebalancevillagers.offers.ItemStackProducer;
-import com.hotmail.wolfiemario.rebalancevillagers.offers.ItemStackProducerFactory;
-import com.hotmail.wolfiemario.rebalancevillagers.offers.PotentialOffersList;
-import com.hotmail.wolfiemario.rebalancevillagers.offers.SimpleOffer;
-import com.hotmail.wolfiemario.utils.ItemIDGetter;
 
 /**
  * This class loads the config files of the Rebalance Villagers plugin.
@@ -86,9 +81,6 @@ public class ConfigLoader
 		if(removalMinimum > removalMaximum)
 			getLogger().info("Warning: '" + removalMin + "' is greater than '" + removalMax + "'! " + CONFIG_WARNING_POSTFIX);
 		
-		String removalTicks = CONFIG_OFFER_REMOVAL + ".removal-ticks";
-		BalancedVillager.setRemovalTicks(validateMinimumOfOne(getConfig().getInt(removalTicks, 20), removalTicks, CONFIG_WARNING_POSTFIX));
-		
 		String defaultOfferCount = CONFIG_OFFER_GENERATION + ".default-offer-count";
 		BalancedVillager.setDefaultOfferCount(validateMinimumOfOne(getConfig().getInt(defaultOfferCount, 1), defaultOfferCount, CONFIG_WARNING_POSTFIX));
 		String newOfferCount = CONFIG_OFFER_GENERATION + ".new-offer-count";
@@ -102,13 +94,15 @@ public class ConfigLoader
 		
 		String particleTicks = CONFIG_GENERAL_TRADING + ".particle-ticks";
 		BalancedVillager.setParticleTicks(validateMinimumOfOne(getConfig().getInt(particleTicks, 200), particleTicks, CONFIG_WARNING_POSTFIX));
+		String checkDryRun = CONFIG_GENERAL_TRADING + ".dryrun-check-ticks";
+        BalancedVillager.setCheckDryRun(getConfig().getInt(checkDryRun, 200));
 		String allowMulti = CONFIG_GENERAL_TRADING + ".allow-bickering";
 		BalancedVillager.setAllowMultivending(getConfig().getBoolean(allowMulti, false));
 		String allowChild = CONFIG_GENERAL_TRADING + ".can-trade-children";
 		BalancedVillager.setCanTradeChildren(getConfig().getBoolean(allowChild, false));
 		
-		String maxHealth = CONFIG_GENERAL + ".max-health";
-		BalancedVillager.setMaxHealth(validateMinimumOfOne(getConfig().getInt(maxHealth, 20), maxHealth, CONFIG_WARNING_POSTFIX));
+//		String maxHealth = CONFIG_GENERAL + ".max-health";
+//		BalancedVillager.setMaxHealth(validateMinimumOfOne(getConfig().getInt(maxHealth, 20), maxHealth, CONFIG_WARNING_POSTFIX));
 		plugin.allowDamage = getConfig().getBoolean(CONFIG_GENERAL + ".allow-damage", true);
 		
 		String professions = CONFIG_GENERAL + ".allowed-spawn-professions";
@@ -126,9 +120,9 @@ public class ConfigLoader
 		}
 		
 		String checkAttempts = CONFIG_SHOPKEEPERS + ".times-to-check";
-		plugin.shopkeeperCheckAttempts = validateMinimumOfOne(getConfig().getInt(checkAttempts, 5), checkAttempts, CONFIG_WARNING_POSTFIX);
+		ShopkeeperWaiter.shopkeeperCheckAttempts = validateMinimumOfOne(getConfig().getInt(checkAttempts, 5), checkAttempts, CONFIG_WARNING_POSTFIX);
 		String checkDelay = CONFIG_SHOPKEEPERS + ".time-between-checks";
-		plugin.shopkeeperCheckDelay = validateMinimumOfOne(getConfig().getInt(checkDelay, 50), checkDelay, CONFIG_WARNING_POSTFIX);
+		ShopkeeperWaiter.shopkeeperCheckDelay = validateMinimumOfOne(getConfig().getInt(checkDelay, 50), checkDelay, CONFIG_WARNING_POSTFIX);
 	}
 	
 	/**
@@ -138,15 +132,15 @@ public class ConfigLoader
 	{
 		//Get currency
 		String currencyName = getOfferConfig().getString(CONFIG_CURRENCY_ITEM, "emerald");
-		int currencyId = ItemIDGetter.getID(currencyName);
-		if(!idExists(currencyId, currencyName, CONFIG_CURRENCY_ITEM, OFFERS_WARNING_POSTFIX))
-			currencyId = Item.EMERALD.id;
-		ItemIDGetter.registerName(CONFIG_CURRENCY_ITEM, currencyId); //Allow users to use "currency-item" instead of an item name
-		BalancedVillager.setCurrencyItem(currencyId);
+		Item currencyItemOrBlock = ItemIDGetter.getItemOrBlock(currencyName);
+		if(!itemOrBlockExists(currencyItemOrBlock, currencyName, CONFIG_CURRENCY_ITEM, OFFERS_WARNING_POSTFIX)) currencyItemOrBlock = Items.EMERALD;
+		
+		ItemIDGetter.registerName(CONFIG_CURRENCY_ITEM, currencyItemOrBlock); //Allow users to use "currency-item" instead of an item name
+		BalancedVillager.setCurrencyItem(currencyItemOrBlock);
 		
 		//This is needed for the hardcoded default gold offer to work properly, so we prepare it ahead of time.
-		HashMap<Integer, Tuple> buyValues = new HashMap<Integer, Tuple>();
-		buyValues.put(Integer.valueOf(Item.GOLD_INGOT.id), new Tuple(Integer.valueOf(2), Integer.valueOf(3)));
+		HashMap<Item, Tuple> buyValues = new HashMap<Item, Tuple>();
+		buyValues.put(Items.GOLD_INGOT, new Tuple(Integer.valueOf(2), Integer.valueOf(3)));
 		
 		//Get offers
 		HashMap<Integer, PotentialOffersList> offersByProfession = new HashMap<Integer, PotentialOffersList>();
@@ -216,7 +210,7 @@ public class ConfigLoader
 		BalancedVillager.setBuyValues(buyValues);
 		
 		//Get sell values
-		HashMap<Integer, Tuple> sellValues = new HashMap<Integer, Tuple>();
+		HashMap<Item, Tuple> sellValues = new HashMap<Item, Tuple>();
 		ConfigurationSection configSellValues = getOfferConfig().getConfigurationSection(CONFIG_SELL_VALUES);
 		if(pathContentsExists(configSellValues, CONFIG_SELL_VALUES, OFFERS_WARNING_POSTFIX))
 		{
@@ -313,15 +307,14 @@ public class ConfigLoader
 	/**
 	 * Returns whether or not the given id is greater than or equal to 0.
 	 * If it is not, a warning is issued, stating that the specified item/block name is unknown.
-	 * @param id - the id to check
 	 * @param name - the name of the item. Used for the warning message.
 	 * @param path - the path to the value. Used for the warning message.
 	 * @param postfix - this String is appended to the warning message
 	 * @return True if id is greater than or equal to 0, false otherwise.
 	 */
-	private boolean idExists(int id, String name, String path, String postfix)
+	private boolean itemOrBlockExists(Object itemOrBlock, String name, String path, String postfix)
 	{
-		if(id < 0)
+		if(itemOrBlock == null)
 		{
 			getLogger().info("Warning: '" + name + "' at '" + path + "' is an unknown item! " + postfix + " Use a data value if necessary.");
 			return false;
@@ -408,13 +401,13 @@ public class ConfigLoader
 		{
 			String path = pathHeader + "." + name;
 			
-			int id = ItemIDGetter.getID(name);
+			Item itemOrBlock = ItemIDGetter.getItemOrBlock(name);
 			
-			if(idExists(id, name, path, OFFERS_WARNING_POSTFIX))
+			if(itemOrBlockExists(itemOrBlock, name, path, OFFERS_WARNING_POSTFIX))
 			{
 				double probability = validateProbability(path, getOfferConfig(), OFFERS_WARNING_POSTFIX);
 				
-				targetList.add(new SimpleOffer(id, (float) probability));
+				targetList.add(new SimpleOffer(itemOrBlock, (float) probability));
 			}
 		}
 	}
@@ -464,11 +457,11 @@ public class ConfigLoader
 		
 		if(getOfferConfig().contains(itemPath))
 		{
-			String item = getOfferConfig().getString(itemPath);
+			String itemName = getOfferConfig().getString(itemPath);
 			
-			int id = ItemIDGetter.getID(item);
+			Item item = ItemIDGetter.getItemOrBlock(itemName);
 			
-			if(idExists(id, item, path, OFFERS_WARNING_POSTFIX))
+			if(itemOrBlockExists(item, itemName, path, OFFERS_WARNING_POSTFIX))
 			{
 				if(getOfferConfig().contains(itemstackPath))
 					getLogger().info("Warning: '" + itemstackPath + "' was not checked, as '" + itemPath + "' was specified. " + OFFERS_WARNING_POSTFIX);
@@ -491,10 +484,10 @@ public class ConfigLoader
 					int minimumLevel = enchant.get(0);
 					int maximumLevel = enchant.get((enchant.size() < 2) ? 0 : 1);
 					
-					return ItemStackProducerFactory.createItemStackProducer(id, minimum, maximum, damage, minimumLevel, maximumLevel);
+					return ItemStackProducerFactory.createItemStackProducer(item, minimum, maximum, damage, minimumLevel, maximumLevel);
 				}
 				else
-					return ItemStackProducerFactory.createItemStackProducer(id, minimum, maximum, damage);
+					return ItemStackProducerFactory.createItemStackProducer(item, minimum, maximum, damage);
 			}
 		}
 		if(getOfferConfig().contains(itemstackPath))
@@ -514,20 +507,20 @@ public class ConfigLoader
 	 * @param itemNames - keys representing offers values to be added to the map
 	 * @param pathHeader - the parent path of the keys
 	 */
-	private void populateValuesHashMap(HashMap<Integer, Tuple> targetMap, Set<String> itemNames, String pathHeader)
+	private void populateValuesHashMap(HashMap<Item, Tuple> targetMap, Set<String> itemNames, String pathHeader)
 	{
 		for(String name: itemNames)
 		{
 			String path = pathHeader + "." + name;
 			
-			int id = ItemIDGetter.getID(name);
+			Item item = ItemIDGetter.getItemOrBlock(name);
 			
-			if(idExists(id, name, path, OFFERS_WARNING_POSTFIX))
+			if(itemOrBlockExists(item, name, path, OFFERS_WARNING_POSTFIX))
 			{
 				List<Integer> range = getOfferConfig().getIntegerList(path);
 				
 				if(rangeExists(range, path, OFFERS_WARNING_POSTFIX))
-					targetMap.put(id, new Tuple(range.get(0), range.get( (range.size() < 2) ? 0 : 1) + 1));
+					targetMap.put(item, new Tuple(range.get(0), range.get( (range.size() < 2) ? 0 : 1) + 1));
 			}
 		}
 	}

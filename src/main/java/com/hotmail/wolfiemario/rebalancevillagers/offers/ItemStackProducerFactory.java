@@ -2,10 +2,11 @@ package com.hotmail.wolfiemario.rebalancevillagers.offers;
 
 import java.util.Random;
 
-import net.minecraft.server.EnchantmentManager;
-import net.minecraft.server.ItemStack;
+import net.minecraft.server.v1_8_R3.EnchantmentManager;
+import net.minecraft.server.v1_8_R3.Item;
+import net.minecraft.server.v1_8_R3.ItemStack;
 
-import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 
 
 /**
@@ -25,9 +26,9 @@ public class ItemStackProducerFactory
 	 * @param damage - the damage value for all ItemStacks produced by this producer.
 	 * @return An ItemStackProducer based on the above parameters.
 	 */
-	public static ItemStackProducer createItemStackProducer(int id, int min, int max, int damage)
+	public static ItemStackProducer createItemStackProducer(Item item, int min, int max, int damage)
 	{
-		return new DefaultStackProducer(id, min, max, damage);
+		return new DefaultStackProducer(item, min, max, damage);
 	}
 	
 	/**
@@ -38,9 +39,9 @@ public class ItemStackProducerFactory
 	 * @param max - the maximum (inclusive) count (number of stacked item) for ItemStacks produced by this producer.
 	 * @return An ItemStackProducer based on the above parameters.
 	 */
-	public static ItemStackProducer createItemStackProducer(int id, int min, int max)
+	public static ItemStackProducer createItemStackProducer(Item item, int min, int max)
 	{
-		return createItemStackProducer(id, min, max, 0);
+		return createItemStackProducer(item, min, max, 0);
 	}
 	
 	/**
@@ -56,9 +57,9 @@ public class ItemStackProducerFactory
 	 * @param enchMax - the maximum (inclusive) level this producer will enchant an item at.
 	 * @return An ItemStackProducer based on the above parameters.
 	 */
-	public static ItemStackProducer createItemStackProducer(int id, int min, int max, int damage, int enchMin, int enchMax)
+	public static ItemStackProducer createItemStackProducer(Item item, int min, int max, int damage, int enchMin, int enchMax)
 	{
-		return new EnchantedStackProducer(id, min, max, damage, enchMin, enchMax);
+		return new EnchantedStackProducer(item, min, max, damage, enchMin, enchMax);
 	}
 	
 	/**
@@ -80,32 +81,31 @@ public class ItemStackProducerFactory
 	 */
 	public static ItemStackProducer createItemStackProducer(org.bukkit.inventory.ItemStack stack)
 	{
-		return createItemStackProducer( CraftItemStack.createNMSItemStack(stack) );
+		return createItemStackProducer( CraftItemStack.asNMSCopy(stack) );
 	}
 	
 	
 	private static class DefaultStackProducer implements ItemStackProducer
 	{
-		protected int itemId;
+		protected Item item;
 		protected int minimum;
 		protected int maximum;
 		protected int damage;
 		
-		public DefaultStackProducer(int id, int min, int max, int dmg)
+		public DefaultStackProducer(Item _item, int min, int max, int dmg)
 		{
-			itemId = id;
+			item = _item;
 			minimum = min;
 			maximum = max;
 			damage = dmg;
 		}
 		
-		@Override
 		public ItemStack getItemStack()
 		{
 			if(maximum > minimum)
-				return new ItemStack(itemId, minimum + random.nextInt(maximum - minimum + 1), damage);
+				return new ItemStack(item, minimum + random.nextInt(maximum - minimum + 1), damage);
 			else
-				return new ItemStack(itemId, minimum, damage);
+				return new ItemStack(item, minimum, damage);
 		}
 		
 	}
@@ -115,9 +115,9 @@ public class ItemStackProducerFactory
 		protected int minimumLevel;
 		protected int maximumLevel;
 		
-		public EnchantedStackProducer(int id, int min, int max, int dmg, int enchMin, int enchMax)
+		public EnchantedStackProducer(Item item, int min, int max, int dmg, int enchMin, int enchMax)
 		{
-			super(id, min, max, dmg);
+			super(item, min, max, dmg);
 			minimumLevel = enchMin;
 			maximumLevel = enchMax;
 		}
@@ -142,7 +142,6 @@ public class ItemStackProducerFactory
 			stack = s;
 		}
 		
-		@Override
 		public ItemStack getItemStack()
 		{
 			return stack;
